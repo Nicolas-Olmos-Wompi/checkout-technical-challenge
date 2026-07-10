@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ProductController } from "./product.controller";
 import { HandlerGetProducts } from "src/handler/get-products.handler";
+import { JwtAuthGuard } from "src/common/guards/jwt-auth.guard";
 import { HTTPResponse } from "src/model/dto/http-response.model";
 import { GetProductsRequest } from "src/model/dto/product.type";
 
@@ -19,7 +20,14 @@ describe("ProductController", () => {
           },
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({
+        canActivate: () => {
+          return true;
+        },
+      })
+      .compile();
 
     controller = module.get<ProductController>(ProductController);
     handlerGetProducts = module.get<HandlerGetProducts>(HandlerGetProducts);

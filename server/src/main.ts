@@ -51,6 +51,18 @@ async function bootstrap() {
       },
       "Cognito-Auth",
     )
+    .addBearerAuth(
+      {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+        name: "Local JWT",
+        description:
+          "Enter the JWT token obtained from POST /auth/login or /auth/signup",
+        in: "header",
+      },
+      "Bearer-Auth",
+    )
     .setVersion("1.0")
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
