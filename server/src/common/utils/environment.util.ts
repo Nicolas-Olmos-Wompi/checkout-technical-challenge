@@ -1,4 +1,4 @@
-import {Environment} from '../../model/enum/environment.enum';
+import { Environment } from "../../model/enum/environment.enum";
 
 export const isProduction = () =>
   process.env.APP_ENV === Environment.PRODUCTION;

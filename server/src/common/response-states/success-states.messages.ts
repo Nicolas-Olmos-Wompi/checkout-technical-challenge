@@ -1,10 +1,10 @@
-import {IresponseCode} from '../../model/interfaces/response-code.interface';
+import { IresponseCode } from "../../model/interfaces/response-code.interface";
 
-type TSuccessMessage = 'Success';
+type TSuccessMessage = "Success";
 
 export const SUCCESS_STATES_MESSAGES: Record<TSuccessMessage, IresponseCode> = {
   Success: {
-    code: 'OK',
-    message: 'Solicitud ejecutada correctamente.',
+    code: "OK",
+    message: "Solicitud ejecutada correctamente.",
   },
 };

@@ -1,4 +1,4 @@
-import {Signer} from '@aws-sdk/rds-signer';
+import { Signer } from "@aws-sdk/rds-signer";
 
 const getAuthToken = async (): Promise<string> => {
   const signer = new Signer({

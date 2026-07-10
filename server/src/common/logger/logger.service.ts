@@ -1,5 +1,5 @@
-import {Logger} from '@nestjs/common';
-import {ILogger} from '../../../domain/src/interface/logger.interface';
+import { Logger } from "@nestjs/common";
+import { ILogger } from "../../../domain/src/interface/logger.interface";
 
 export const LoggerServiceKey = Symbol();
 
@@ -9,7 +9,7 @@ export class LoggerService implements ILogger {
 
   public constructor(parentClass: object | string) {
     this.sourceClass =
-      typeof parentClass === 'string'
+      typeof parentClass === "string"
         ? parentClass
         : parentClass.constructor.name;
 

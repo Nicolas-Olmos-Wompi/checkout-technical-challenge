@@ -5,4 +5,4 @@ type DatabaseGenericFields = {
   updatedAt: string;
 };
 
-export type {DatabaseGenericFields};
+export type { DatabaseGenericFields };

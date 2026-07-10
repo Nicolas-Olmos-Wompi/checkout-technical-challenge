@@ -1,6 +1,6 @@
-import {Logger} from '@nestjs/common';
-import {plainToClass} from 'class-transformer';
-import {IsNumber, IsOptional, IsString, validateSync} from 'class-validator';
+import { Logger } from "@nestjs/common";
+import { plainToClass } from "class-transformer";
+import { IsNumber, IsOptional, IsString, validateSync } from "class-validator";
 
 /* Por favor incluye todas las variables de entorno necesarias para ejecutar el proyecto */
 class EnvironmentVariables {
@@ -57,11 +57,11 @@ export function validate(config: Record<string, unknown>) {
   });
 
   if (errors.length > 0) {
-    const variables = errors.map(error => error.property);
-    Logger.error('Configuration error.', variables);
+    const variables = errors.map((error) => error.property);
+    Logger.error("Configuration error.", variables);
 
     throw new Error(
-      'You do not have the necessary configuration to run the microservice.'
+      "You do not have the necessary configuration to run the microservice.",
     );
   }
 

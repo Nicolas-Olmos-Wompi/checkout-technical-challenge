@@ -1,4 +1,4 @@
-import {IHealthRepository} from '../interface/health.repository';
+import { IHealthRepository } from "../interface/health.repository";
 
 class GetHealthUseCase {
   constructor(private readonly healthRepository: IHealthRepository) {}
@@ -8,4 +8,4 @@ class GetHealthUseCase {
   }
 }
 
-export {GetHealthUseCase};
+export { GetHealthUseCase };

@@ -3,6 +3,6 @@ export class GetServerHealthStatusMapper {
     if (healthStatus) {
       return "I'm alive!";
     }
-    return 'Database issue. Unhealthy';
+    return "Database issue. Unhealthy";
   }
 }

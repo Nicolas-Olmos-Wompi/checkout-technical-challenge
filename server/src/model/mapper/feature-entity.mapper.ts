@@ -1,6 +1,6 @@
-import {QueryCommandOutput} from '@aws-sdk/lib-dynamodb';
-import {DatabaseGenericFields} from 'domain/src/model/database-generic-fields.type';
-import {DomainEntity} from '../../../domain/src/model/domain.entity';
+import { QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { DatabaseGenericFields } from "domain/src/model/database-generic-fields.type";
+import { DomainEntity } from "../../../domain/src/model/domain.entity";
 
 class FeatureEntityMapper {
   public static toModel(featureEntity: QueryCommandOutput): DomainEntity[] {
@@ -17,12 +17,12 @@ class FeatureEntityMapper {
         new DomainEntity(
           featureObject.email,
           featureObject.name,
-          DBGenericFields
-        )
+          DBGenericFields,
+        ),
       );
     }
     return feature;
   }
 }
 
-export {FeatureEntityMapper};
+export { FeatureEntityMapper };

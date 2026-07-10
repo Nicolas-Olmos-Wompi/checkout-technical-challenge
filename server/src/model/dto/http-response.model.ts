@@ -1,5 +1,5 @@
-import {ImetaResponse} from '../interfaces/meta-response.interface';
-import {getTraceId} from 'src/common/utils/general.util';
+import { ImetaResponse } from "../interfaces/meta-response.interface";
+import { getTraceId } from "src/common/utils/general.util";
 
 export class HTTPResponse<T = unknown> {
   public meta?: ImetaResponse;
@@ -13,7 +13,7 @@ export class HTTPResponse<T = unknown> {
     code: string,
     message: string,
     data?: T,
-    type?: string
+    type?: string,
   ) {
     this.meta = {
       trace_id: getTraceId(),

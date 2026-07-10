@@ -1,4 +1,4 @@
-import {IsEmail} from 'class-validator';
+import { IsEmail } from "class-validator";
 
 class GetFeatureRequest {
   @IsEmail()
@@ -11,5 +11,5 @@ type GetFeatureResponse = {
   email: string;
 };
 
-export {GetFeatureRequest};
-export type {GetFeatureResponse};
+export { GetFeatureRequest };
+export type { GetFeatureResponse };

@@ -1,11 +1,11 @@
-import {Controller, Get} from '@nestjs/common';
-import {HandlerGetServerHealthStatus} from '../../..//handler/get-server-health-status.handler';
-import {HTTPResponse} from '../../../model/dto/http-response.model';
+import { Controller, Get } from "@nestjs/common";
+import { HandlerGetServerHealthStatus } from "../../..//handler/get-server-health-status.handler";
+import { HTTPResponse } from "../../../model/dto/http-response.model";
 
-@Controller('health')
+@Controller("health")
 export class HealthController {
   constructor(
-    private readonly handlerGetServerHealthStatus: HandlerGetServerHealthStatus
+    private readonly handlerGetServerHealthStatus: HandlerGetServerHealthStatus,
   ) {}
 
   @Get()

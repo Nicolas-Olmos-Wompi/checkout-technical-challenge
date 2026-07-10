@@ -1,5 +1,5 @@
-import {registerAs} from '@nestjs/config';
+import { registerAs } from "@nestjs/config";
 
-export default registerAs('general', () => ({
-  version: process.env.PORT ?? '3001',
+export default registerAs("general", () => ({
+  version: process.env.PORT ?? "3001",
 }));

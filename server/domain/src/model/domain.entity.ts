@@ -1,4 +1,4 @@
-import {DatabaseGenericFields} from './database-generic-fields.type';
+import { DatabaseGenericFields } from "./database-generic-fields.type";
 
 class DomainEntity {
   public createdAt: string;
@@ -18,4 +18,4 @@ class DomainEntity {
   }
 }
 
-export {DomainEntity};
+export { DomainEntity };

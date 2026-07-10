@@ -16,4 +16,4 @@ type UserEmail = {
   email: string;
 };
 
-export type {AuthUsersPayload, UserEmail};
+export type { AuthUsersPayload, UserEmail };

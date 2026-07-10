@@ -1,6 +1,6 @@
-import {ArgumentMetadata, Injectable, PipeTransform} from '@nestjs/common';
-import {plainToInstance} from 'class-transformer';
-import {GetFeatureRequest} from 'src/model/dto/feature.type';
+import { ArgumentMetadata, Injectable, PipeTransform } from "@nestjs/common";
+import { plainToInstance } from "class-transformer";
+import { GetFeatureRequest } from "src/model/dto/feature.type";
 
 @Injectable()
 class GetFeaturePipe implements PipeTransform<
@@ -9,7 +9,7 @@ class GetFeaturePipe implements PipeTransform<
 > {
   transform(
     dto: GetFeatureRequest,
-    {metatype}: ArgumentMetadata
+    { metatype }: ArgumentMetadata,
   ): GetFeatureRequest {
     if (!metatype) {
       return dto;
@@ -19,4 +19,4 @@ class GetFeaturePipe implements PipeTransform<
   }
 }
 
-export {GetFeaturePipe};
+export { GetFeaturePipe };
