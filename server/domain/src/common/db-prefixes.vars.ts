@@ -1,0 +1,4 @@
+const DOMAIN_PREFIX = 'DOMAIN#';
+const USER_PREFIX = 'USER#';
+
+export {DOMAIN_PREFIX, USER_PREFIX};

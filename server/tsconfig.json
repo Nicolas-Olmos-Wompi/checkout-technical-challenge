@@ -1,0 +1,29 @@
+{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "isolatedModules": true,
+    
+    "noUnusedParameters": false,
+    "noUnusedLocals": false, 
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noErrorTruncation": true,
+    "noFallthroughCasesInSwitch": true,
+    "removeComments": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowUnreachableCode": false, 
+  },
+  "paths": {
+      "@domain/*": ["./domain/src/*"],
+      "@src/*": ["./src/*"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "domain/**/*.ts",
+    "__mocks__/**/*.ts"
+  ]
+}
