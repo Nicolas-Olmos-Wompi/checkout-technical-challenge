@@ -2,9 +2,9 @@
 node_modules/
 
 # Build outputs
-dist/
-build/
-out/
+/dist/
+/build/
+/out/
 .nuxt/
 
 # Environment files (keep .env.template)

@@ -189,7 +189,86 @@ The tests of the functions will be carried out in the same route where the logic
 
 ## Description
 
-Please complete the description about this microservice
+Checkout technical challenge microservice. Implements a public `GET /products` endpoint that lists products stored in Postgres (via TypeORM), with pagination and optional filtering by name and price range.
+
+## Products endpoint
+
+`GET /products` returns a paginated list of products. It is a public endpoint (no authentication required).
+
+Query parameters (all optional):
+
+| Parameter  | Type   | Default | Description                                  |
+| ---------- | ------ | ------- | --------------------------------------------- |
+| `page`     | number | `1`     | Page number (1-based)                         |
+| `pageSize` | number | `10`    | Items per page (max `100`)                    |
+| `name`     | string | -       | Filters products whose name contains the text |
+| `minPrice` | number | -       | Minimum price in cents (inclusive)            |
+| `maxPrice` | number | -       | Maximum price in cents (inclusive)            |
+
+`price` is always an integer expressed in cents (e.g. `100000` = `$1,000.00`), both in the database and in the API response — there is no decimal conversion at any layer.
+
+Example request:
+
+```bash
+curl 'http://localhost:3000/products?page=1&pageSize=5&name=headphones&minPrice=10000&maxPrice=5000000'
+```
+
+Example response:
+
+```json
+{
+  "status": 200,
+  "meta": {"trace_id": "..."},
+  "code": "OK",
+  "message": "Solicitud ejecutada correctamente.",
+  "data": {
+    "items": [
+      {
+        "id": "11111111-1111-1111-1111-111111111101",
+        "name": "Wireless Bluetooth Headphones",
+        "description": "Over-ear wireless headphones with active noise cancellation and 30-hour battery life.",
+        "price": 24999900,
+        "stock": 120,
+        "image": "https://images.example.com/products/wireless-headphones.jpg",
+        "createdAt": "2024-01-01T00:00:00.000Z",
+        "updatedAt": "2024-01-01T00:00:00.000Z"
+      }
+    ],
+    "page": 1,
+    "pageSize": 5,
+    "total": 1,
+    "totalPages": 1
+  }
+}
+```
+
+### Database setup
+
+The `products` table and its seed data are managed with TypeORM migrations (not `synchronize`). To set up a local Postgres instance:
+
+```bash
+# 1. Start Postgres (and localstack) via docker-compose
+docker compose up -d postgres
+
+# 2. Run pending migrations (creates the table and inserts 10 seed products)
+npm run migration:run
+
+# 3. Check migration status
+npm run migration:show
+
+# 4. Revert the last migration if needed
+npm run migration:revert
+```
+
+Additional migration scripts:
+
+```bash
+# Generate a migration from entity changes
+npm run migration:generate -- src/common/migrations/MigrationName
+
+# Scaffold an empty migration file
+npm run migration:create -- src/common/migrations/MigrationName
+```
 
 ## Installation
 
@@ -197,6 +276,10 @@ Please complete the description about this microservice
 # installation
 $ npm install
 ```
+
+## Environment variables
+
+Copy `.env.template` to `.env` and fill in the values for your environment (see `.env.template` for the full list, including `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` and `DB_AUTH_MECHANISM` used by the Postgres/TypeORM connection).
 
 ## Running the app
 

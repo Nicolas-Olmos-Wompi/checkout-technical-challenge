@@ -23,7 +23,15 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "typeorm": "typeorm-ts-node-commonjs -d src/adapter/out/postgres/data-source.ts",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "migration:show": "npm run typeorm -- migration:show",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "test:e2e": "jest --config e2e/jest-e2e.config.js",
+    "test:e2e-cov": "jest --config e2e/jest-e2e.config.js --coverage"
   },
   "engines": {
     "node": ">=24.14.1",
