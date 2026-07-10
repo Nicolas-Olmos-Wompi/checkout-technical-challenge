@@ -45,6 +45,13 @@ class EnvironmentVariables {
 
   @IsString()
   SLACK_WEBHOOK!: string;
+
+  @IsString()
+  JWT_SECRET!: string;
+
+  @IsString()
+  @IsOptional()
+  JWT_EXPIRES_IN!: string;
 }
 
 export function validate(config: Record<string, unknown>) {

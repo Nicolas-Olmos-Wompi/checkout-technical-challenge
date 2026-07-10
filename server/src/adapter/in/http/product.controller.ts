@@ -1,6 +1,12 @@
-import { Controller, Get, Query } from "@nestjs/common";
-import { ApiOkResponse, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from "@nestjs/swagger";
 import { HTTPResponse } from "../../../model/dto/http-response.model";
+import { JwtAuthGuard } from "../../../common/guards/jwt-auth.guard";
 import { HandlerGetProducts } from "../../../handler/get-products.handler";
 import { GetProductsRequest } from "../../../model/dto/product.type";
 
@@ -9,7 +15,9 @@ import { GetProductsRequest } from "../../../model/dto/product.type";
 export class ProductController {
   constructor(private readonly handlerGetProducts: HandlerGetProducts) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
+  @ApiBearerAuth("Bearer-Auth")
   @ApiQuery({
     name: "page",
     required: false,

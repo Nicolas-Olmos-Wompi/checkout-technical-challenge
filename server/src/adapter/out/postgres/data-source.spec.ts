@@ -3,6 +3,7 @@ import { Environment } from "../../../model/enum/environment.enum";
 import { AuthMechanism } from "../../../model/enum/auth-mechanism.enum";
 import { dataSource } from "./data-source";
 import { ProductEntity } from "./product.entity";
+import { UserEntity } from "./user.entity";
 
 describe("dataSource", () => {
   beforeEach(() => {
@@ -24,6 +25,10 @@ describe("dataSource", () => {
 
   it("should register ProductEntity", () => {
     expect(dataSource.options.entities).toContain(ProductEntity);
+  });
+
+  it("should register UserEntity", () => {
+    expect(dataSource.options.entities).toContain(UserEntity);
   });
 
   it("should point migrations to the src/common/migrations glob, excluding spec files", () => {

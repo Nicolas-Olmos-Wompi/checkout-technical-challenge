@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { validate } from "./config/env.validation";
 import generalConfig from "./config/general.config";
 import { CognitoStrategy } from "./strategies/cognito.strategy";
+import { JwtStrategy } from "./strategies/jwt.strategy";
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { CognitoStrategy } from "./strategies/cognito.strategy";
       load: [generalConfig],
     }),
   ],
-  providers: [CognitoStrategy],
+  providers: [CognitoStrategy, JwtStrategy],
 })
 export class CommonsModule {}

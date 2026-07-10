@@ -189,11 +189,75 @@ The tests of the functions will be carried out in the same route where the logic
 
 ## Description
 
-Checkout technical challenge microservice. Implements a public `GET /products` endpoint that lists products stored in Postgres (via TypeORM), with pagination and optional filtering by name and price range.
+Checkout technical challenge microservice. Implements local user signup/login (bcrypt-hashed passwords, own JWT bearer tokens) and a `GET /products` endpoint that lists products stored in Postgres (via TypeORM), with pagination and optional filtering by name and price range. `GET /products` requires a valid Bearer token obtained from signup or login.
+
+## Authentication
+
+Two public endpoints let a client create an account and obtain a JWT bearer token used to access protected endpoints (currently `GET /products`).
+
+### POST /auth/signup
+
+Creates a new user with a bcrypt-hashed password and returns a signed JWT (auto-login).
+
+| Field      | Type   | Rules                          |
+| ---------- | ------ | ------------------------------- |
+| `username` | string | required, unique, 3-255 chars   |
+| `password` | string | required, min 8 chars, max 255  |
+
+```bash
+curl -X POST http://localhost:3000/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"username":"johndoe","password":"password123"}'
+```
+
+Returns `201 Created`:
+
+```json
+{
+  "status": 201,
+  "meta": {"trace_id": "..."},
+  "code": "OK",
+  "message": "Solicitud ejecutada correctamente.",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tokenType": "Bearer",
+    "expiresIn": "1h",
+    "user": {
+      "id": "9769d7b5-ce81-401b-ba2f-92cf86c2029c",
+      "username": "johndoe"
+    }
+  }
+}
+```
+
+A duplicate `username` returns `409 Conflict`.
+
+### POST /auth/login
+
+Verifies credentials against the stored bcrypt hash and returns a new signed JWT.
+
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"johndoe","password":"password123"}'
+```
+
+Returns `200 OK` with the same response shape as signup. Invalid username or password returns `401 Unauthorized`.
+
+### Using the token
+
+Pass the returned `token` as a Bearer credential on protected endpoints:
+
+```bash
+curl http://localhost:3000/products \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+Requests without a valid token receive `401 Unauthorized`.
 
 ## Products endpoint
 
-`GET /products` returns a paginated list of products. It is a public endpoint (no authentication required).
+`GET /products` returns a paginated list of products. It requires a valid Bearer token (see [Authentication](#authentication)).
 
 Query parameters (all optional):
 
@@ -244,13 +308,13 @@ Example response:
 
 ### Database setup
 
-The `products` table and its seed data are managed with TypeORM migrations (not `synchronize`). To set up a local Postgres instance:
+The `products` and `users` tables (and product seed data) are managed with TypeORM migrations (not `synchronize`). To set up a local Postgres instance:
 
 ```bash
 # 1. Start Postgres (and localstack) via docker-compose
 docker compose up -d postgres
 
-# 2. Run pending migrations (creates the table and inserts 10 seed products)
+# 2. Run pending migrations (creates the products and users tables, and inserts 10 seed products)
 npm run migration:run
 
 # 3. Check migration status
@@ -279,7 +343,7 @@ $ npm install
 
 ## Environment variables
 
-Copy `.env.template` to `.env` and fill in the values for your environment (see `.env.template` for the full list, including `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` and `DB_AUTH_MECHANISM` used by the Postgres/TypeORM connection).
+Copy `.env.template` to `.env` and fill in the values for your environment (see `.env.template` for the full list, including `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` and `DB_AUTH_MECHANISM` used by the Postgres/TypeORM connection, plus `JWT_SECRET` and `JWT_EXPIRES_IN` used to sign and configure the expiration of the local auth Bearer tokens).
 
 ## Running the app
 
