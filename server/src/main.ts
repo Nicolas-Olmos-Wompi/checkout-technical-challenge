@@ -16,9 +16,12 @@ async function bootstrap() {
   //Configuración librería para validación de DTOs
   app.useGlobalPipes(
     new ValidationPipe({
+      transform: true,
       whitelist: true,
+      forbidNonWhitelisted: true,
       forbidUnknownValues: true,
       skipNullProperties: true,
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
 

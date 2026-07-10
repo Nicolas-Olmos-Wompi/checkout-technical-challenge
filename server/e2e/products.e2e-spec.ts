@@ -14,9 +14,12 @@ describe('GET /products (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
       new ValidationPipe({
+        transform: true,
         whitelist: true,
+        forbidNonWhitelisted: true,
         forbidUnknownValues: true,
         skipNullProperties: true,
+        transformOptions: {enableImplicitConversion: true},
       })
     );
     await app.init();
@@ -65,5 +68,21 @@ describe('GET /products (e2e)', () => {
     if (firstItem) {
       expect(Number.isInteger(firstItem.price)).toBe(true);
     }
+  });
+
+  it('should reject a non-numeric page with 400', async () => {
+    await request(app.getHttpServer()).get('/products?page=abc').expect(400);
+  });
+
+  it('should reject a pageSize over the max with 400', async () => {
+    await request(app.getHttpServer())
+      .get('/products?pageSize=101')
+      .expect(400);
+  });
+
+  it('should reject unknown query params with 400', async () => {
+    await request(app.getHttpServer())
+      .get('/products?unknownParam=hack')
+      .expect(400);
   });
 });

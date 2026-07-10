@@ -3,7 +3,6 @@ import { ApiOkResponse, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { HTTPResponse } from "../../../model/dto/http-response.model";
 import { HandlerGetProducts } from "../../../handler/get-products.handler";
 import { GetProductsRequest } from "../../../model/dto/product.type";
-import { GetProductsPipe } from "./get-products.pipe";
 
 @ApiTags("Products")
 @Controller("products")
@@ -42,9 +41,7 @@ export class ProductController {
     description: "Maximum price in cents",
   })
   @ApiOkResponse({ description: "Paginated list of products" })
-  async getProducts(
-    @Query(new GetProductsPipe()) query: GetProductsRequest,
-  ): Promise<HTTPResponse> {
+  async getProducts(@Query() query: GetProductsRequest): Promise<HTTPResponse> {
     return this.handlerGetProducts.execute(query);
   }
 }
