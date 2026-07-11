@@ -11,6 +11,8 @@ import { IUserRepository } from "domain/src/interface/user.repository";
 import { IPasswordHasher } from "domain/src/interface/password-hasher";
 import { ITokenGenerator } from "domain/src/interface/token-generator";
 import { IOrderRepository } from "domain/src/interface/order.repository";
+import { IDeliveryRepository } from "domain/src/interface/delivery.repository";
+import { ITransactionManager } from "domain/src/interface/transaction-manager";
 import { IPaymentGateway } from "domain/src/interface/payment-gateway";
 import { GetFeatureUseCase } from "../domain/src/usecase/get-feature.usecase";
 import { GetProductsUseCase } from "../domain/src/usecase/get-products.usecase";
@@ -32,6 +34,8 @@ import { UserRepository } from "./adapter/out/postgres/user.repository";
 import { OrderEntity } from "./adapter/out/postgres/order.entity";
 import { DeliveryEntity } from "./adapter/out/postgres/delivery.entity";
 import { OrderRepository } from "./adapter/out/postgres/order.repository";
+import { DeliveryRepository } from "./adapter/out/postgres/delivery.repository";
+import { TypeOrmTransactionManager } from "./adapter/out/postgres/typeorm-transaction-manager";
 import { BcryptPasswordHasherAdapter } from "./adapter/out/security/bcrypt-password-hasher.adapter";
 import { JwtTokenGeneratorAdapter } from "./adapter/out/auth/jwt-token-generator.adapter";
 import { WompiPaymentGatewayAdapter } from "./adapter/out/wompi/wompi-payment-gateway.adapter";
@@ -184,6 +188,16 @@ import { IBackOfficeNotification } from "domain/src/interface/backoffice-notific
       provide: "OrderRepository",
       useExisting: OrderRepository,
     },
+    DeliveryRepository,
+    {
+      provide: "DeliveryRepository",
+      useExisting: DeliveryRepository,
+    },
+    TypeOrmTransactionManager,
+    {
+      provide: "TransactionManager",
+      useExisting: TypeOrmTransactionManager,
+    },
     WompiPaymentGatewayAdapter,
     {
       provide: "PaymentGateway",
@@ -194,15 +208,25 @@ import { IBackOfficeNotification } from "domain/src/interface/backoffice-notific
       useFactory: (
         productRepository: IProductRepository,
         orderRepository: IOrderRepository,
+        deliveryRepository: IDeliveryRepository,
+        transactionManager: ITransactionManager,
         paymentGateway: IPaymentGateway,
       ) => {
         return new CreateOrderUseCase(
           productRepository,
           orderRepository,
+          deliveryRepository,
+          transactionManager,
           paymentGateway,
         );
       },
-      inject: ["ProductRepository", "OrderRepository", "PaymentGateway"],
+      inject: [
+        "ProductRepository",
+        "OrderRepository",
+        "DeliveryRepository",
+        "TransactionManager",
+        "PaymentGateway",
+      ],
     },
     HandlerGetFeature,
     HandlerGetProducts,

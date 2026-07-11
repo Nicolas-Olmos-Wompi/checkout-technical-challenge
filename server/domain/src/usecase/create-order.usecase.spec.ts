@@ -1,6 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { IProductRepository } from "../interface/product.repository";
 import { IOrderRepository } from "../interface/order.repository";
+import { IDeliveryRepository } from "../interface/delivery.repository";
+import { ITransactionManager } from "../interface/transaction-manager";
 import { IPaymentGateway } from "../interface/payment-gateway";
 import { Product } from "../model/product.entity";
 import { Order } from "../model/order.entity";
@@ -16,6 +18,8 @@ describe("CreateOrderUseCase", () => {
   let createOrderUseCase: CreateOrderUseCase;
   let productRepository: MockProxy<IProductRepository>;
   let orderRepository: MockProxy<IOrderRepository>;
+  let deliveryRepository: MockProxy<IDeliveryRepository>;
+  let transactionManager: MockProxy<ITransactionManager>;
   let paymentGateway: MockProxy<IPaymentGateway>;
 
   const buildProduct = (overrides: Partial<Product> = {}): Product =>
@@ -94,10 +98,20 @@ describe("CreateOrderUseCase", () => {
   beforeEach(() => {
     productRepository = mock<IProductRepository>();
     orderRepository = mock<IOrderRepository>();
+    deliveryRepository = mock<IDeliveryRepository>();
+    transactionManager = mock<ITransactionManager>();
     paymentGateway = mock<IPaymentGateway>();
+
+    // The transaction manager should execute the work function directly
+    transactionManager.runInTransaction.mockImplementation(async (work) =>
+      work(),
+    );
+
     createOrderUseCase = new CreateOrderUseCase(
       productRepository,
       orderRepository,
+      deliveryRepository,
+      transactionManager,
       paymentGateway,
     );
   });
@@ -115,6 +129,7 @@ describe("CreateOrderUseCase", () => {
 
     expect(paymentGateway.getAcceptanceTokens).not.toHaveBeenCalled();
     expect(orderRepository.create).not.toHaveBeenCalled();
+    expect(deliveryRepository.create).not.toHaveBeenCalled();
   });
 
   it("should throw InsufficientStockError when quantity exceeds stock", async () => {
@@ -126,6 +141,7 @@ describe("CreateOrderUseCase", () => {
 
     expect(paymentGateway.getAcceptanceTokens).not.toHaveBeenCalled();
     expect(orderRepository.create).not.toHaveBeenCalled();
+    expect(deliveryRepository.create).not.toHaveBeenCalled();
   });
 
   it("should compute the total from product price times quantity plus delivery fee", async () => {
@@ -133,23 +149,20 @@ describe("CreateOrderUseCase", () => {
       buildProduct({ price: 100000 }),
     );
     paymentGateway.getAcceptanceTokens.mockResolvedValue(buildAcceptance());
-    const createResult: { order: Order; delivery: Delivery } = {
-      order: buildOrder({ total: 205000 }),
-      delivery: buildDelivery({ fee: 5000 }),
-    };
-    orderRepository.create.mockResolvedValue(createResult);
+    orderRepository.create.mockResolvedValue(buildOrder());
+    deliveryRepository.create.mockResolvedValue(buildDelivery());
 
-    await createOrderUseCase.apply(
-      buildCommand({
-        quantity: 2,
-        delivery: { ...buildCommand().delivery, fee: 5000 },
-      }),
-    );
+    await createOrderUseCase.apply(buildCommand({ quantity: 2 }));
 
     expect(orderRepository.create).toHaveBeenCalledTimes(1);
-    const callArg = orderRepository.create.mock.calls[0]?.[0];
-    expect(callArg?.order.total).toBe(205000);
-    expect(callArg?.delivery.fee).toBe(5000);
+    expect(deliveryRepository.create).toHaveBeenCalledTimes(1);
+
+    const orderArg = orderRepository.create.mock.calls[0]?.[0];
+    const deliveryArg = deliveryRepository.create.mock.calls[0]?.[0];
+
+    expect(typeof deliveryArg?.fee).toBe("number");
+    expect(typeof orderArg?.total).toBe("number");
+    expect(orderArg?.total).toBe(200000 + (deliveryArg?.fee ?? 0));
   });
 
   it("should fetch acceptance tokens and persist a PENDING order with both tokens", async () => {
@@ -157,28 +170,28 @@ describe("CreateOrderUseCase", () => {
     const acceptance = buildAcceptance();
     productRepository.findById.mockResolvedValue(product);
     paymentGateway.getAcceptanceTokens.mockResolvedValue(acceptance);
-    const createResult: { order: Order; delivery: Delivery } = {
-      order: buildOrder(),
-      delivery: buildDelivery(),
-    };
-    orderRepository.create.mockResolvedValue(createResult);
+    orderRepository.create.mockResolvedValue(buildOrder());
+    deliveryRepository.create.mockResolvedValue(buildDelivery());
 
     await createOrderUseCase.apply(buildCommand());
 
     expect(paymentGateway.getAcceptanceTokens).toHaveBeenCalled();
     expect(orderRepository.create).toHaveBeenCalledTimes(1);
-    const callArg = orderRepository.create.mock.calls[0]?.[0];
-    expect(callArg?.order).toMatchObject({
+    const orderArg = orderRepository.create.mock.calls[0]?.[0];
+    expect(orderArg).toMatchObject({
       userId: "11111111-1111-1111-1111-111111111111",
       productId: "22222222-2222-2222-2222-222222222222",
       quantity: 2,
-      total: 200000,
       status: "PENDING",
       paymentGatewayTransactionId: null,
       acceptanceTokenEndUserPolicy: "end-user-policy-token",
       acceptanceTokenPersonalDataAuth: "personal-data-auth-token",
     });
-    expect(callArg?.delivery).toMatchObject({
+    expect(typeof orderArg?.total).toBe("number");
+
+    expect(deliveryRepository.create).toHaveBeenCalledTimes(1);
+    const deliveryArg = deliveryRepository.create.mock.calls[0]?.[0];
+    expect(deliveryArg).toMatchObject({
       personName: "John Doe",
       address: "123 Main St",
       country: "CO",
@@ -189,15 +202,38 @@ describe("CreateOrderUseCase", () => {
     });
   });
 
+  it("should persist both order and delivery within a transaction", async () => {
+    productRepository.findById.mockResolvedValue(buildProduct());
+    paymentGateway.getAcceptanceTokens.mockResolvedValue(buildAcceptance());
+    orderRepository.create.mockResolvedValue(buildOrder());
+    deliveryRepository.create.mockResolvedValue(buildDelivery());
+
+    await createOrderUseCase.apply(buildCommand());
+
+    expect(transactionManager.runInTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  it("should link the delivery to the created order's id", async () => {
+    const order = buildOrder({
+      id: "33333333-3333-3333-3333-333333333333",
+    });
+    productRepository.findById.mockResolvedValue(buildProduct());
+    paymentGateway.getAcceptanceTokens.mockResolvedValue(buildAcceptance());
+    orderRepository.create.mockResolvedValue(order);
+    deliveryRepository.create.mockResolvedValue(buildDelivery());
+
+    await createOrderUseCase.apply(buildCommand());
+
+    const deliveryArg = deliveryRepository.create.mock.calls[0]?.[0];
+    expect(deliveryArg?.orderId).toBe("33333333-3333-3333-3333-333333333333");
+  });
+
   it("should NOT decrement product stock", async () => {
     const product = buildProduct({ stock: 10 });
     productRepository.findById.mockResolvedValue(product);
     paymentGateway.getAcceptanceTokens.mockResolvedValue(buildAcceptance());
-    const createResult: { order: Order; delivery: Delivery } = {
-      order: buildOrder(),
-      delivery: buildDelivery(),
-    };
-    orderRepository.create.mockResolvedValue(createResult);
+    orderRepository.create.mockResolvedValue(buildOrder());
+    deliveryRepository.create.mockResolvedValue(buildDelivery());
 
     await createOrderUseCase.apply(buildCommand());
 
@@ -211,7 +247,8 @@ describe("CreateOrderUseCase", () => {
     const delivery = buildDelivery();
     productRepository.findById.mockResolvedValue(product);
     paymentGateway.getAcceptanceTokens.mockResolvedValue(acceptance);
-    orderRepository.create.mockResolvedValue({ order, delivery });
+    orderRepository.create.mockResolvedValue(order);
+    deliveryRepository.create.mockResolvedValue(delivery);
 
     const result = await createOrderUseCase.apply(buildCommand());
 
