@@ -64,6 +64,14 @@ class EnvironmentVariables {
 
   @IsString()
   WOMPI_INTEGRITY_SECRET!: string;
+
+  @IsNumber()
+  @IsOptional()
+  WOMPI_MAX_POLL_WAIT_MS!: number;
+
+  @IsNumber()
+  @IsOptional()
+  WOMPI_POLL_INITIAL_INTERVAL_MS!: number;
 }
 
 export function validate(config: Record<string, unknown>) {

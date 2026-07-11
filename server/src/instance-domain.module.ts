@@ -14,11 +14,16 @@ import { IOrderRepository } from "domain/src/interface/order.repository";
 import { IDeliveryRepository } from "domain/src/interface/delivery.repository";
 import { ITransactionManager } from "domain/src/interface/transaction-manager";
 import { IPaymentGateway } from "domain/src/interface/payment-gateway";
+import { IPaymentMethodStrategy } from "domain/src/interface/payment-method-strategy";
+import { IIntegritySignatureGenerator } from "domain/src/interface/integrity-signature-generator";
+import { ITransactionGateway } from "domain/src/interface/transaction-gateway";
 import { GetFeatureUseCase } from "../domain/src/usecase/get-feature.usecase";
 import { GetProductsUseCase } from "../domain/src/usecase/get-products.usecase";
 import { SignupUseCase } from "../domain/src/usecase/signup.usecase";
 import { LoginUseCase } from "../domain/src/usecase/login.usecase";
 import { CreateOrderUseCase } from "../domain/src/usecase/create-order.usecase";
+import { PayOrderUseCase } from "../domain/src/usecase/pay-order.usecase";
+import { TransactionStatusPoller } from "../domain/src/usecase/transaction-status-poller";
 import { ApiDomainController } from "./adapter/in/http/api-domain.controller";
 import { HealthController } from "./adapter/in/http/health.controller";
 import { ProductController } from "./adapter/in/http/product.controller";
@@ -39,11 +44,16 @@ import { TypeOrmTransactionManager } from "./adapter/out/postgres/typeorm-transa
 import { BcryptPasswordHasherAdapter } from "./adapter/out/security/bcrypt-password-hasher.adapter";
 import { JwtTokenGeneratorAdapter } from "./adapter/out/auth/jwt-token-generator.adapter";
 import { WompiPaymentGatewayAdapter } from "./adapter/out/wompi/wompi-payment-gateway.adapter";
+import { WompiCardPaymentMethodAdapter } from "./adapter/out/wompi/wompi-card-payment-method.adapter";
+import { Sha256IntegritySignatureAdapter } from "./adapter/out/wompi/sha256-integrity-signature.adapter";
+import { WompiTransactionGatewayAdapter } from "./adapter/out/wompi/wompi-transaction-gateway.adapter";
 import { HandlerGetFeature } from "./handler/get-feature.handler";
 import { HandlerGetProducts } from "./handler/get-products.handler";
 import { HandlerSignup } from "./handler/signup.handler";
 import { HandlerLogin } from "./handler/login.handler";
 import { HandlerCreateOrder } from "./handler/create-order.handler";
+import { HandlerPayOrder } from "./handler/pay-order.handler";
+import { HandlerGetOrder } from "./handler/get-order.handler";
 import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status.handler";
 import { SlackNotification } from "./adapter/out/slack/notification.controller";
 import { BackOfficeNotification } from "./adapter/out/backoffice/notification.controller";
@@ -203,6 +213,38 @@ import { IBackOfficeNotification } from "domain/src/interface/backoffice-notific
       provide: "PaymentGateway",
       useExisting: WompiPaymentGatewayAdapter,
     },
+    WompiCardPaymentMethodAdapter,
+    {
+      provide: "PaymentMethodHandlers",
+      useFactory: (
+        cardHandler: WompiCardPaymentMethodAdapter,
+      ): IPaymentMethodStrategy[] => [cardHandler],
+      inject: [WompiCardPaymentMethodAdapter],
+    },
+    Sha256IntegritySignatureAdapter,
+    {
+      provide: "IntegritySignatureGenerator",
+      useExisting: Sha256IntegritySignatureAdapter,
+    },
+    WompiTransactionGatewayAdapter,
+    {
+      provide: "TransactionGateway",
+      useExisting: WompiTransactionGatewayAdapter,
+    },
+    {
+      provide: "TransactionStatusPoller",
+      useFactory: (configService: ConfigService) => {
+        const maxWaitMs =
+          configService.get<number>("WOMPI_MAX_POLL_WAIT_MS") ?? 15000;
+        const initialIntervalMs =
+          configService.get<number>("WOMPI_POLL_INITIAL_INTERVAL_MS") ?? 1000;
+        return new TransactionStatusPoller(
+          (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
+          { maxWaitMs, initialIntervalMs },
+        );
+      },
+      inject: [ConfigService],
+    },
     {
       provide: "CreateOrderUseCase",
       useFactory: (
@@ -228,11 +270,41 @@ import { IBackOfficeNotification } from "domain/src/interface/backoffice-notific
         "PaymentGateway",
       ],
     },
+    {
+      provide: "PayOrderUseCase",
+      useFactory: (
+        orderRepository: IOrderRepository,
+        userRepository: IUserRepository,
+        paymentMethodStrategies: IPaymentMethodStrategy[],
+        signatureGenerator: IIntegritySignatureGenerator,
+        transactionGateway: ITransactionGateway,
+        poller: TransactionStatusPoller,
+      ) => {
+        return new PayOrderUseCase(
+          orderRepository,
+          userRepository,
+          paymentMethodStrategies,
+          signatureGenerator,
+          transactionGateway,
+          poller,
+        );
+      },
+      inject: [
+        "OrderRepository",
+        "UserRepository",
+        "PaymentMethodHandlers",
+        "IntegritySignatureGenerator",
+        "TransactionGateway",
+        "TransactionStatusPoller",
+      ],
+    },
     HandlerGetFeature,
     HandlerGetProducts,
     HandlerSignup,
     HandlerLogin,
     HandlerCreateOrder,
+    HandlerPayOrder,
+    HandlerGetOrder,
     HandlerGetServerHealthStatus,
   ],
 })

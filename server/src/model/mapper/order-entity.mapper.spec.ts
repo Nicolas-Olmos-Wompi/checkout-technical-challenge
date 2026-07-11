@@ -8,7 +8,7 @@ describe("OrderEntityMapper", () => {
     entity.userId = "11111111-1111-1111-1111-111111111111";
     entity.productId = "22222222-2222-2222-2222-222222222222";
     entity.quantity = 2;
-    entity.total = 200000;
+    entity.totalInCents = 200000;
     entity.status = "PENDING";
     entity.paymentGatewayTransactionId = null;
     entity.acceptanceTokenEndUserPolicy = "end-user-policy-token";
@@ -29,7 +29,7 @@ describe("OrderEntityMapper", () => {
         userId: entity.userId,
         productId: entity.productId,
         quantity: entity.quantity,
-        total: entity.total,
+        totalInCents: entity.totalInCents,
         status: entity.status,
         paymentGatewayTransactionId: entity.paymentGatewayTransactionId,
         acceptanceTokenEndUserPolicy: entity.acceptanceTokenEndUserPolicy,

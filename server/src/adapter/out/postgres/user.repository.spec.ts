@@ -51,6 +51,34 @@ describe("UserRepository", () => {
     });
   });
 
+  describe("findById", () => {
+    it("should return the mapped user when found", async () => {
+      repository.findOne.mockResolvedValue(buildEntity());
+
+      const result = await userRepository.findById(
+        "11111111-1111-1111-1111-111111111111",
+      );
+
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: "11111111-1111-1111-1111-111111111111" },
+      });
+      expect(result).toMatchObject({
+        id: "11111111-1111-1111-1111-111111111111",
+        username: "johndoe",
+      });
+    });
+
+    it("should return null when no user matches", async () => {
+      repository.findOne.mockResolvedValue(null);
+
+      const result = await userRepository.findById(
+        "99999999-9999-9999-9999-999999999999",
+      );
+
+      expect(result).toBeNull();
+    });
+  });
+
   describe("create", () => {
     it("should persist and return the mapped user", async () => {
       const entity = buildEntity();

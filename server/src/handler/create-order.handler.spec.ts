@@ -47,7 +47,7 @@ describe("HandlerCreateOrder", () => {
       userId,
       productId: "22222222-2222-2222-2222-222222222222",
       quantity: 2,
-      total: 200000,
+      totalInCents: 200000,
       status: "PENDING",
       paymentGatewayTransactionId: null,
       acceptanceTokenEndUserPolicy: "end-user-policy-token",
@@ -85,7 +85,7 @@ describe("HandlerCreateOrder", () => {
     status: "PENDING",
     productId: "22222222-2222-2222-2222-222222222222",
     quantity: 2,
-    total: 200000,
+    totalInCents: 200000,
     delivery: {
       id: "44444444-4444-4444-4444-444444444444",
       personName: "John Doe",

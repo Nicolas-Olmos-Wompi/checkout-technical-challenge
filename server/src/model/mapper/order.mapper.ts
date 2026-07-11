@@ -33,7 +33,7 @@ export class OrderMapper {
       status: result.order.status,
       productId: result.order.productId,
       quantity: result.order.quantity,
-      total: result.order.total,
+      totalInCents: result.order.totalInCents,
       delivery: {
         id: result.delivery.id,
         personName: result.delivery.personName,

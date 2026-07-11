@@ -22,8 +22,8 @@ export class OrderEntity extends Order {
   @Column({ type: "int" })
   declare quantity: number;
 
-  @Column({ type: "int" })
-  declare total: number;
+  @Column({ name: "total_in_cents", type: "int" })
+  declare totalInCents: number;
 
   @Column({
     type: "varchar",

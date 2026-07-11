@@ -41,7 +41,7 @@ export class CreateOrderUseCase {
     }
 
     const deliveryFee = this.calculateDeliveryFee();
-    const total = product.price * quantity + deliveryFee;
+    const totalInCents = product.price * quantity + deliveryFee;
 
     const acceptance = await this.paymentGateway.getAcceptanceTokens();
 
@@ -51,7 +51,7 @@ export class CreateOrderUseCase {
           userId,
           productId,
           quantity,
-          total,
+          totalInCents,
           acceptance,
           deliveryFee,
         }),
@@ -63,7 +63,10 @@ export class CreateOrderUseCase {
   private calculateDeliveryFee(): number {
     const min = this.MIN_DELIVERY_FEE;
     const max = this.MAX_DELIVERY_FEE;
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    const rawFee = Math.floor(Math.random() * (max - min + 1)) + min;
+    // Round to the nearest whole 100 cents (whole peso) since some payment
+    // methods (e.g. Wompi cards) reject amounts that include sub-peso cents.
+    return Math.round(rawFee / 100) * 100;
   }
 
   private async persistOrderAndDelivery(
@@ -72,7 +75,7 @@ export class CreateOrderUseCase {
       userId: string;
       productId: string;
       quantity: number;
-      total: number;
+      totalInCents: number;
       acceptance: MerchantAcceptance;
       deliveryFee: number;
     },
@@ -81,7 +84,7 @@ export class CreateOrderUseCase {
       userId: params.userId,
       productId: params.productId,
       quantity: params.quantity,
-      total: params.total,
+      totalInCents: params.totalInCents,
       status: "PENDING",
       paymentGatewayTransactionId: null,
       acceptanceTokenEndUserPolicy:

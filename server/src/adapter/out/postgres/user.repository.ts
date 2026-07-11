@@ -17,6 +17,12 @@ export class UserRepository implements IUserRepository {
     return entity ? UserEntityMapper.toModel(entity) : null;
   }
 
+  async findById(id: string): Promise<User | null> {
+    const entity = await this.repository.findOne({ where: { id } });
+
+    return entity ? UserEntityMapper.toModel(entity) : null;
+  }
+
   async create(params: {
     username: string;
     email: string;
