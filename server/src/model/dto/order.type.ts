@@ -1,10 +1,13 @@
 import { Type } from "class-transformer";
 import {
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
   IsUUID,
+  Length,
   Min,
+  MinLength,
   ValidateNested,
 } from "class-validator";
 
@@ -73,10 +76,62 @@ export type PendingOrderResponse = {
   status: string;
   productId: string;
   quantity: number;
-  total: number;
+  totalInCents: number;
   delivery: DeliveryResponse;
   presignedAcceptance: {
     endUserPolicy: AcceptanceTokenResponse;
     personalDataAuth: AcceptanceTokenResponse;
   };
+};
+
+export class CardPaymentRequest {
+  @IsString()
+  cardNumber!: string;
+
+  @IsString()
+  @Length(2, 2)
+  expMonth!: string;
+
+  @IsString()
+  @Length(2, 2)
+  expYear!: string;
+
+  @IsString()
+  @Length(3, 4)
+  cvc!: string;
+
+  @IsString()
+  @MinLength(5)
+  cardHolder!: string;
+}
+
+export class PayOrderRequest {
+  @IsIn(["CARD"])
+  paymentMethodType!: "CARD";
+
+  @ValidateNested()
+  @Type(() => CardPaymentRequest)
+  card!: CardPaymentRequest;
+}
+
+export type PayOrderResponse = {
+  orderId: string;
+  status: string;
+  paymentGatewayTransactionId: string | null;
+  timedOut: boolean;
+  paymentMethod: {
+    type: string;
+    displayInfo: Record<string, string>;
+  };
+};
+
+export type OrderResponse = {
+  orderId: string;
+  productId: string;
+  quantity: number;
+  totalInCents: number;
+  status: string;
+  paymentGatewayTransactionId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 };

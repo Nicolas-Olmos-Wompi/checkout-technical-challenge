@@ -70,7 +70,7 @@ describe("CreateOrderUseCase", () => {
       userId: "11111111-1111-1111-1111-111111111111",
       productId: "22222222-2222-2222-2222-222222222222",
       quantity: 2,
-      total: 200000,
+      totalInCents: 200000,
       status: "PENDING",
       paymentGatewayTransactionId: null,
       acceptanceTokenEndUserPolicy: "end-user-policy-token",
@@ -161,8 +161,33 @@ describe("CreateOrderUseCase", () => {
     const deliveryArg = deliveryRepository.create.mock.calls[0]?.[0];
 
     expect(typeof deliveryArg?.fee).toBe("number");
-    expect(typeof orderArg?.total).toBe("number");
-    expect(orderArg?.total).toBe(200000 + (deliveryArg?.fee ?? 0));
+    expect(typeof orderArg?.totalInCents).toBe("number");
+    expect(orderArg?.totalInCents).toBe(200000 + (deliveryArg?.fee ?? 0));
+  });
+
+  it("should always generate a delivery fee that is a whole multiple of 100 cents (no sub-peso amounts)", async () => {
+    productRepository.findById.mockResolvedValue(
+      buildProduct({ price: 100000 }),
+    );
+    paymentGateway.getAcceptanceTokens.mockResolvedValue(buildAcceptance());
+    orderRepository.create.mockResolvedValue(buildOrder());
+    deliveryRepository.create.mockResolvedValue(buildDelivery());
+
+    for (let i = 0; i < 50; i++) {
+      await createOrderUseCase.apply(buildCommand({ quantity: 1 }));
+
+      const deliveryArg =
+        deliveryRepository.create.mock.calls[
+          deliveryRepository.create.mock.calls.length - 1
+        ]?.[0];
+      const orderArg =
+        orderRepository.create.mock.calls[
+          orderRepository.create.mock.calls.length - 1
+        ]?.[0];
+
+      expect((deliveryArg?.fee ?? 0) % 100).toBe(0);
+      expect((orderArg?.totalInCents ?? 0) % 100).toBe(0);
+    }
   });
 
   it("should fetch acceptance tokens and persist a PENDING order with both tokens", async () => {
@@ -187,7 +212,7 @@ describe("CreateOrderUseCase", () => {
       acceptanceTokenEndUserPolicy: "end-user-policy-token",
       acceptanceTokenPersonalDataAuth: "personal-data-auth-token",
     });
-    expect(typeof orderArg?.total).toBe("number");
+    expect(typeof orderArg?.totalInCents).toBe("number");
 
     expect(deliveryRepository.create).toHaveBeenCalledTimes(1);
     const deliveryArg = deliveryRepository.create.mock.calls[0]?.[0];

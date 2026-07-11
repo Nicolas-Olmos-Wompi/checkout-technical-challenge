@@ -5,7 +5,7 @@ export class Order {
   public userId!: string;
   public productId!: string;
   public quantity!: number;
-  public total!: number;
+  public totalInCents!: number;
   public status!: OrderStatus;
   public paymentGatewayTransactionId!: string | null;
   public acceptanceTokenEndUserPolicy!: string;
