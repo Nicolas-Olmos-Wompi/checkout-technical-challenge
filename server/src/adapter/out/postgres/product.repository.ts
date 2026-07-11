@@ -7,6 +7,7 @@ import {
   Repository,
 } from "typeorm";
 import { IProductRepository } from "domain/src/interface/product.repository";
+import { Product } from "domain/src/model/product.entity";
 import {
   PaginatedProducts,
   ProductFilterCriteria,
@@ -34,6 +35,12 @@ export class ProductRepository implements IProductRepository {
       items: ProductEntityMapper.toModelList(entities),
       total,
     };
+  }
+
+  async findById(id: string): Promise<Product | null> {
+    const entity = await this.repository.findOne({ where: { id } });
+
+    return entity ? ProductEntityMapper.toModel(entity) : null;
   }
 
   private buildWhere(criteria: ProductFilterCriteria) {

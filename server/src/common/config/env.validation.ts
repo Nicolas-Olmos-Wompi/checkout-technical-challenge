@@ -52,6 +52,18 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   JWT_EXPIRES_IN!: string;
+
+  @IsString()
+  WOMPI_BASE_URL!: string;
+
+  @IsString()
+  WOMPI_PUBLIC_KEY!: string;
+
+  @IsString()
+  WOMPI_PRIVATE_KEY!: string;
+
+  @IsString()
+  WOMPI_INTEGRITY_SECRET!: string;
 }
 
 export function validate(config: Record<string, unknown>) {

@@ -1,17 +1,17 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
-import { JwtTokenGenerator } from "./jwt-token-generator";
+import { JwtTokenGeneratorAdapter } from "./jwt-token-generator.adapter";
 
-describe("JwtTokenGenerator", () => {
-  let tokenService: JwtTokenGenerator;
+describe("JwtTokenGeneratorAdapter", () => {
+  let tokenService: JwtTokenGeneratorAdapter;
   let jwtService: MockProxy<JwtService>;
   let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     jwtService = mock<JwtService>();
     configService = mock<ConfigService>();
-    tokenService = new JwtTokenGenerator(jwtService, configService);
+    tokenService = new JwtTokenGeneratorAdapter(jwtService, configService);
   });
 
   afterEach(() => {

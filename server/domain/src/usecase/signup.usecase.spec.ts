@@ -16,6 +16,7 @@ describe("SignupUseCase", () => {
     Object.assign(new User(), {
       id: "11111111-1111-1111-1111-111111111111",
       username: "johndoe",
+      email: "johndoe@example.com",
       passwordHash: "hashed-password",
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -40,7 +41,11 @@ describe("SignupUseCase", () => {
     userRepository.findByUsername.mockResolvedValue(buildUser());
 
     await expect(
-      signupUseCase.apply({ username: "johndoe", password: "password123" }),
+      signupUseCase.apply({
+        username: "johndoe",
+        email: "johndoe@example.com",
+        password: "password123",
+      }),
     ).rejects.toThrow(UsernameAlreadyExistsError);
 
     expect(passwordHasher.hash).not.toHaveBeenCalled();
@@ -56,13 +61,18 @@ describe("SignupUseCase", () => {
       expiresIn: "1h",
     });
 
-    await signupUseCase.apply({ username: "johndoe", password: "password123" });
+    await signupUseCase.apply({
+      username: "johndoe",
+      email: "johndoe@example.com",
+      password: "password123",
+    });
 
     expect(passwordHasher.hash).toHaveBeenCalledWith("password123");
-    expect(userRepository.create).toHaveBeenCalledWith(
-      "johndoe",
-      "hashed-password",
-    );
+    expect(userRepository.create).toHaveBeenCalledWith({
+      username: "johndoe",
+      email: "johndoe@example.com",
+      passwordHash: "hashed-password",
+    });
   });
 
   it("should return the created user with a signed token", async () => {
@@ -77,6 +87,7 @@ describe("SignupUseCase", () => {
 
     const result = await signupUseCase.apply({
       username: "johndoe",
+      email: "johndoe@example.com",
       password: "password123",
     });
 

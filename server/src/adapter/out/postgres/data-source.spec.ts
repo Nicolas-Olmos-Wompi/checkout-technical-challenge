@@ -4,6 +4,8 @@ import { AuthMechanism } from "../../../model/enum/auth-mechanism.enum";
 import { dataSource } from "./data-source";
 import { ProductEntity } from "./product.entity";
 import { UserEntity } from "./user.entity";
+import { OrderEntity } from "./order.entity";
+import { DeliveryEntity } from "./delivery.entity";
 
 describe("dataSource", () => {
   beforeEach(() => {
@@ -29,6 +31,14 @@ describe("dataSource", () => {
 
   it("should register UserEntity", () => {
     expect(dataSource.options.entities).toContain(UserEntity);
+  });
+
+  it("should register OrderEntity", () => {
+    expect(dataSource.options.entities).toContain(OrderEntity);
+  });
+
+  it("should register DeliveryEntity", () => {
+    expect(dataSource.options.entities).toContain(DeliveryEntity);
   });
 
   it("should point migrations to the src/common/migrations glob, excluding spec files", () => {

@@ -1,3 +1,4 @@
+import { Product } from "../model/product.entity";
 import {
   PaginatedProducts,
   ProductFilterCriteria,
@@ -10,4 +11,11 @@ export interface IProductRepository {
    * @returns a `PaginatedProducts` object containing the matched items and total count.
    */
   findProducts(criteria: ProductFilterCriteria): Promise<PaginatedProducts>;
+
+  /**
+   * Finds a single product by its unique id.
+   * @param {string} id - the product id to search for.
+   * @returns the matching `Product`, or `null` if none exists.
+   */
+  findById(id: string): Promise<Product | null>;
 }

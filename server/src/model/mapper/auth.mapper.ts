@@ -11,6 +11,7 @@ export class AuthMapper {
   public static toSignupCommand(request: SignupRequest): SignupCommand {
     return {
       username: request.username,
+      email: request.email,
       password: request.password,
     };
   }
@@ -30,6 +31,7 @@ export class AuthMapper {
       user: {
         id: authResult.user.id,
         username: authResult.user.username,
+        email: authResult.user.email,
       },
     };
   }

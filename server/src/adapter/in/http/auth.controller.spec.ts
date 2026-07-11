@@ -41,6 +41,7 @@ describe("AuthController", () => {
   it("should call handlerSignup.execute with the signup request", async () => {
     const request: SignupRequest = {
       username: "johndoe",
+      email: "johndoe@example.com",
       password: "password123",
     };
     const result = {} as HTTPResponse;

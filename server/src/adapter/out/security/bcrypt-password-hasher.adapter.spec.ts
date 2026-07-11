@@ -1,10 +1,10 @@
-import { BcryptPasswordHasher } from "./bcrypt-password-hasher";
+import { BcryptPasswordHasherAdapter } from "./bcrypt-password-hasher.adapter";
 
-describe("BcryptPasswordHasher", () => {
-  let hasher: BcryptPasswordHasher;
+describe("BcryptPasswordHasherAdapter", () => {
+  let hasher: BcryptPasswordHasherAdapter;
 
   beforeEach(() => {
-    hasher = new BcryptPasswordHasher();
+    hasher = new BcryptPasswordHasherAdapter();
   });
 
   describe("hash", () => {

@@ -10,9 +10,15 @@ export interface IUserRepository {
 
   /**
    * Persists a new user with an already-hashed password.
-   * @param {string} username - the unique username.
-   * @param {string} passwordHash - the hashed password.
+   * @param {object} params - the user data to persist.
+   * @param {string} params.username - the unique username.
+   * @param {string} params.email - the unique email.
+   * @param {string} params.passwordHash - the hashed password.
    * @returns the created `User`.
    */
-  create(username: string, passwordHash: string): Promise<User>;
+  create(params: {
+    username: string;
+    email: string;
+    passwordHash: string;
+  }): Promise<User>;
 }

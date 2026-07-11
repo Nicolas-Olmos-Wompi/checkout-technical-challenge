@@ -18,6 +18,7 @@ describe("HandlerSignup", () => {
     user: Object.assign(new User(), {
       id: "11111111-1111-1111-1111-111111111111",
       username: "johndoe",
+      email: "johndoe@example.com",
       passwordHash: "hashed-password",
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -30,7 +31,11 @@ describe("HandlerSignup", () => {
     token: "signed.jwt.token",
     tokenType: "Bearer",
     expiresIn: "1h",
-    user: { id: "11111111-1111-1111-1111-111111111111", username: "johndoe" },
+    user: {
+      id: "11111111-1111-1111-1111-111111111111",
+      username: "johndoe",
+      email: "johndoe@example.com",
+    },
   };
 
   beforeEach(async () => {
@@ -61,6 +66,7 @@ describe("HandlerSignup", () => {
   it("should return a successful HTTP response on signup", async () => {
     const request: SignupRequest = {
       username: "johndoe",
+      email: "johndoe@example.com",
       password: "password123",
     };
     jest.spyOn(signupUseCase, "apply").mockResolvedValue(domainResult);
@@ -81,6 +87,7 @@ describe("HandlerSignup", () => {
   it("should call SignupUseCase.apply with the mapped command", async () => {
     const request: SignupRequest = {
       username: "johndoe",
+      email: "johndoe@example.com",
       password: "password123",
     };
     jest.spyOn(signupUseCase, "apply").mockResolvedValue(domainResult);
@@ -89,6 +96,7 @@ describe("HandlerSignup", () => {
 
     expect(signupUseCase.apply).toHaveBeenCalledWith({
       username: "johndoe",
+      email: "johndoe@example.com",
       password: "password123",
     });
   });
@@ -96,6 +104,7 @@ describe("HandlerSignup", () => {
   it("should translate UsernameAlreadyExistsError into a ConflictException", async () => {
     const request: SignupRequest = {
       username: "johndoe",
+      email: "johndoe@example.com",
       password: "password123",
     };
     jest

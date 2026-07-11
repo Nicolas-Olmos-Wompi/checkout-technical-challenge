@@ -16,6 +16,7 @@ describe("LoginUseCase", () => {
     Object.assign(new User(), {
       id: "11111111-1111-1111-1111-111111111111",
       username: "johndoe",
+      email: "johndoe@example.com",
       passwordHash: "hashed-password",
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),

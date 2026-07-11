@@ -137,4 +137,26 @@ describe("ProductRepository", () => {
     expect(result.items[0]?.id).toBe("1");
     expect(result.items[0]?.price).toBe(100000);
   });
+
+  describe("findById", () => {
+    it("should return the mapped product when found", async () => {
+      const entity = buildEntity("1");
+      repository.findOne.mockResolvedValue(entity);
+
+      const result = await productRepository.findById("1");
+
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: "1" },
+      });
+      expect(result).toMatchObject({ id: "1", price: 100000 });
+    });
+
+    it("should return null when no product matches", async () => {
+      repository.findOne.mockResolvedValue(null);
+
+      const result = await productRepository.findById("unknown");
+
+      expect(result).toBeNull();
+    });
+  });
 });
