@@ -11,6 +11,7 @@ describe("UserRepository", () => {
     const entity = new UserEntity();
     entity.id = "11111111-1111-1111-1111-111111111111";
     entity.username = "johndoe";
+    entity.email = "johndoe@example.com";
     entity.passwordHash = "hashed-password";
     entity.createdAt = new Date("2024-01-01T00:00:00.000Z");
     entity.updatedAt = new Date("2024-01-01T00:00:00.000Z");
@@ -56,14 +57,22 @@ describe("UserRepository", () => {
       repository.create.mockReturnValue(entity);
       repository.save.mockResolvedValue(entity);
 
-      const result = await userRepository.create("johndoe", "hashed-password");
+      const result = await userRepository.create({
+        username: "johndoe",
+        email: "johndoe@example.com",
+        passwordHash: "hashed-password",
+      });
 
       expect(repository.create).toHaveBeenCalledWith({
         username: "johndoe",
+        email: "johndoe@example.com",
         passwordHash: "hashed-password",
       });
       expect(repository.save).toHaveBeenCalledWith(entity);
-      expect(result).toMatchObject({ username: "johndoe" });
+      expect(result).toMatchObject({
+        username: "johndoe",
+        email: "johndoe@example.com",
+      });
     });
   });
 });

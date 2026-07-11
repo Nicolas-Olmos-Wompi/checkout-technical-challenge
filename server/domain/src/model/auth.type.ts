@@ -2,6 +2,7 @@ import { User } from "./user.entity";
 
 export type SignupCommand = {
   username: string;
+  email: string;
   password: string;
 };
 

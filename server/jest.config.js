@@ -3,6 +3,7 @@ module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',
   testRegex: '.*\\.spec\\.ts$',
+  testPathIgnorePatterns: ['<rootDir>/src/common/migrations/'],
   setupFiles: ['reflect-metadata'],
   transform: {
     '.+\\.(t|j)s$': 'ts-jest',

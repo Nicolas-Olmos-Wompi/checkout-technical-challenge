@@ -7,7 +7,7 @@ import { ITokenGenerator } from "domain/src/interface/token-generator";
 const DEFAULT_EXPIRES_IN = "1h";
 
 @Injectable()
-export class JwtTokenGenerator implements ITokenGenerator {
+export class JwtTokenGeneratorAdapter implements ITokenGenerator {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,

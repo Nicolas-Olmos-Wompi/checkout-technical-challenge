@@ -17,8 +17,12 @@ export class UserRepository implements IUserRepository {
     return entity ? UserEntityMapper.toModel(entity) : null;
   }
 
-  async create(username: string, passwordHash: string): Promise<User> {
-    const entity = this.repository.create({ username, passwordHash });
+  async create(params: {
+    username: string;
+    email: string;
+    passwordHash: string;
+  }): Promise<User> {
+    const entity = this.repository.create(params);
     const savedEntity = await this.repository.save(entity);
 
     return UserEntityMapper.toModel(savedEntity);

@@ -6,6 +6,7 @@ describe("UserEntityMapper", () => {
     const entity = new UserEntity();
     entity.id = "11111111-1111-1111-1111-111111111111";
     entity.username = "johndoe";
+    entity.email = "johndoe@example.com";
     entity.passwordHash = "hashed-password";
     entity.createdAt = new Date("2024-01-01T00:00:00.000Z");
     entity.updatedAt = new Date("2024-01-02T00:00:00.000Z");
@@ -21,6 +22,7 @@ describe("UserEntityMapper", () => {
       expect(result).toMatchObject({
         id: entity.id,
         username: entity.username,
+        email: entity.email,
         passwordHash: entity.passwordHash,
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,

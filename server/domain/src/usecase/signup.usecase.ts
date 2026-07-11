@@ -21,10 +21,11 @@ export class SignupUseCase {
     }
 
     const passwordHash = await this.passwordHasher.hash(command.password);
-    const user = await this.userRepository.create(
-      command.username,
+    const user = await this.userRepository.create({
+      username: command.username,
+      email: command.email,
       passwordHash,
-    );
+    });
 
     const { token, expiresIn } = await this.tokenService.sign({
       id: user.id,

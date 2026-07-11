@@ -8,6 +8,7 @@ describe("AuthMapper", () => {
     it("should map a SignupRequest to a SignupCommand", () => {
       const request: SignupRequest = {
         username: "johndoe",
+        email: "johndoe@example.com",
         password: "password123",
       };
 
@@ -15,6 +16,7 @@ describe("AuthMapper", () => {
 
       expect(result).toEqual({
         username: "johndoe",
+        email: "johndoe@example.com",
         password: "password123",
       });
     });
@@ -42,6 +44,7 @@ describe("AuthMapper", () => {
         user: Object.assign(new User(), {
           id: "11111111-1111-1111-1111-111111111111",
           username: "johndoe",
+          email: "johndoe@example.com",
           passwordHash: "hashed-password",
           createdAt: new Date("2024-01-01T00:00:00.000Z"),
           updatedAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -59,6 +62,7 @@ describe("AuthMapper", () => {
         user: {
           id: "11111111-1111-1111-1111-111111111111",
           username: "johndoe",
+          email: "johndoe@example.com",
         },
       });
       expect(result).not.toHaveProperty("user.passwordHash");
