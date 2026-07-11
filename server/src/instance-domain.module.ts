@@ -1,7 +1,6 @@
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { HttpModule, HttpService } from "@nestjs/axios";
+import { HttpModule } from "@nestjs/axios";
 import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { IHealthRepository } from "domain/src/interface/health.repository";
@@ -17,20 +16,16 @@ import { IPaymentGateway } from "domain/src/interface/payment-gateway";
 import { IPaymentMethodStrategy } from "domain/src/interface/payment-method-strategy";
 import { IIntegritySignatureGenerator } from "domain/src/interface/integrity-signature-generator";
 import { ITransactionGateway } from "domain/src/interface/transaction-gateway";
-import { GetFeatureUseCase } from "../domain/src/usecase/get-feature.usecase";
 import { GetProductsUseCase } from "../domain/src/usecase/get-products.usecase";
 import { SignupUseCase } from "../domain/src/usecase/signup.usecase";
 import { LoginUseCase } from "../domain/src/usecase/login.usecase";
 import { CreateOrderUseCase } from "../domain/src/usecase/create-order.usecase";
 import { PayOrderUseCase } from "../domain/src/usecase/pay-order.usecase";
 import { TransactionStatusPoller } from "../domain/src/usecase/transaction-status-poller";
-import { ApiDomainController } from "./adapter/in/http/api-domain.controller";
 import { HealthController } from "./adapter/in/http/health.controller";
 import { ProductController } from "./adapter/in/http/product.controller";
 import { AuthController } from "./adapter/in/http/auth.controller";
 import { OrderController } from "./adapter/in/http/order.controller";
-import { DomainDataBaseRepository } from "./adapter/out/dynamodb/domain-database.controller";
-import { UtilsDomainDatabase } from "./adapter/out/dynamodb/utils";
 import { TypeOrmHealthRepository } from "./adapter/out/postgres/typeorm-health.repository";
 import { ProductEntity } from "./adapter/out/postgres/product.entity";
 import { ProductRepository } from "./adapter/out/postgres/product.repository";
@@ -47,7 +42,6 @@ import { WompiPaymentGatewayAdapter } from "./adapter/out/wompi/wompi-payment-ga
 import { WompiCardPaymentMethodAdapter } from "./adapter/out/wompi/wompi-card-payment-method.adapter";
 import { Sha256IntegritySignatureAdapter } from "./adapter/out/wompi/sha256-integrity-signature.adapter";
 import { WompiTransactionGatewayAdapter } from "./adapter/out/wompi/wompi-transaction-gateway.adapter";
-import { HandlerGetFeature } from "./handler/get-feature.handler";
 import { HandlerGetProducts } from "./handler/get-products.handler";
 import { HandlerSignup } from "./handler/signup.handler";
 import { HandlerLogin } from "./handler/login.handler";
@@ -55,9 +49,6 @@ import { HandlerCreateOrder } from "./handler/create-order.handler";
 import { HandlerPayOrder } from "./handler/pay-order.handler";
 import { HandlerGetOrder } from "./handler/get-order.handler";
 import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status.handler";
-import { SlackNotification } from "./adapter/out/slack/notification.controller";
-import { BackOfficeNotification } from "./adapter/out/backoffice/notification.controller";
-import { IBackOfficeNotification } from "domain/src/interface/backoffice-notification.repository";
 
 @Module({
   imports: [
@@ -80,7 +71,6 @@ import { IBackOfficeNotification } from "domain/src/interface/backoffice-notific
   ],
   controllers: [
     HealthController,
-    ApiDomainController,
     ProductController,
     AuthController,
     OrderController,
@@ -96,53 +86,6 @@ import { IBackOfficeNotification } from "domain/src/interface/backoffice-notific
         return new GetHealthUseCase(healthRepository);
       },
       inject: ["TypeOrmHealthRepository"],
-    },
-    {
-      provide: "UtilsDomainDatabase",
-      useFactory: (
-        dbClient: DynamoDBDocumentClient,
-        configService: ConfigService,
-      ) => {
-        return new UtilsDomainDatabase(dbClient, configService);
-      },
-      inject: ["dbClient", ConfigService],
-    },
-    {
-      provide: "DomainDataBaseRepository",
-      useFactory: (utilsDomainDatabase: UtilsDomainDatabase) => {
-        return new DomainDataBaseRepository(utilsDomainDatabase);
-      },
-      inject: ["UtilsDomainDatabase"],
-    },
-    {
-      provide: "SlackNotification",
-      useFactory: (httpService: HttpService) => {
-        return new SlackNotification(httpService);
-      },
-      inject: [HttpService],
-    },
-    {
-      provide: "BackOfficeNotification",
-      useFactory: (
-        slackNotification: SlackNotification,
-        configService: ConfigService,
-      ) => {
-        return new BackOfficeNotification(slackNotification, configService);
-      },
-      inject: ["SlackNotification", ConfigService],
-    },
-    {
-      provide: "GetFeatureUseCase",
-      useFactory: (
-        domainDataBaseRepository: DomainDataBaseRepository,
-        backOfficeNotification: IBackOfficeNotification,
-      ) => {
-        return new GetFeatureUseCase(
-          domainDataBaseRepository,
-          backOfficeNotification,
-        );
-      },
-      inject: ["DomainDataBaseRepository", "BackOfficeNotification"],
     },
     ProductRepository,
     {
@@ -298,7 +241,6 @@ import { IBackOfficeNotification } from "domain/src/interface/backoffice-notific
         "TransactionStatusPoller",
       ],
     },
-    HandlerGetFeature,
     HandlerGetProducts,
     HandlerSignup,
     HandlerLogin,

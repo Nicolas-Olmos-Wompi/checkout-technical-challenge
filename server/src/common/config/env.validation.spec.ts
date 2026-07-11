@@ -8,10 +8,10 @@ describe("EnvironmentVariables", () => {
       process.env = { ...originalEnv };
     });
 
-    describe("when validate has require values", () => {
+    describe("when validate has required values", () => {
       let paramsEnvironmentVariables;
 
-      const requiredParms = {
+      const requiredParams = {
         PORT: 3000,
         AWS_REGION: "us-east-1",
         DB_HOST: "dummy",
@@ -19,11 +19,7 @@ describe("EnvironmentVariables", () => {
         DB_PASSWORD: "dummy",
         DB_PORT: 5432,
         DB_USERNAME: "dummy",
-        AWS_DYNAMODB_ENDPOINT: "http://localhost:3000",
-        AWS_DYNAMODB_TABLE_DOMAIN: "dummy",
-        AWS_COGNITO_USER_POOL_ID: "dummy",
         SERVICE_NAME: "dummy",
-        SLACK_WEBHOOK: "dummy",
         JWT_SECRET: "dummy-secret",
         WOMPI_BASE_URL: "https://api-sandbox.co.uat.wompi.dev/v1",
         WOMPI_PUBLIC_KEY: "pub_test_dummy",
@@ -32,14 +28,14 @@ describe("EnvironmentVariables", () => {
       };
 
       it("should be success", () => {
-        paramsEnvironmentVariables = validate(requiredParms);
+        paramsEnvironmentVariables = validate(requiredParams);
 
-        expect(paramsEnvironmentVariables).toEqual(requiredParms);
+        expect(paramsEnvironmentVariables).toEqual(requiredParams);
       });
     });
 
     describe("when JWT_SECRET is missing", () => {
-      const requiredParms = {
+      const requiredParams = {
         PORT: 3000,
         AWS_REGION: "us-east-1",
         DB_HOST: "dummy",
@@ -47,11 +43,7 @@ describe("EnvironmentVariables", () => {
         DB_PASSWORD: "dummy",
         DB_PORT: 5432,
         DB_USERNAME: "dummy",
-        AWS_DYNAMODB_ENDPOINT: "http://localhost:3000",
-        AWS_DYNAMODB_TABLE_DOMAIN: "dummy",
-        AWS_COGNITO_USER_POOL_ID: "dummy",
         SERVICE_NAME: "dummy",
-        SLACK_WEBHOOK: "dummy",
         WOMPI_BASE_URL: "https://api-sandbox.co.uat.wompi.dev/v1",
         WOMPI_PUBLIC_KEY: "pub_test_dummy",
         WOMPI_PRIVATE_KEY: "prv_test_dummy",
@@ -59,14 +51,14 @@ describe("EnvironmentVariables", () => {
       };
 
       it("should throw a configuration error", () => {
-        expect(() => validate(requiredParms)).toThrow(
+        expect(() => validate(requiredParams)).toThrow(
           "You do not have the necessary configuration to run the microservice.",
         );
       });
     });
 
     describe("when a Wompi variable is missing", () => {
-      const requiredParms = {
+      const requiredParams = {
         PORT: 3000,
         AWS_REGION: "us-east-1",
         DB_HOST: "dummy",
@@ -74,11 +66,7 @@ describe("EnvironmentVariables", () => {
         DB_PASSWORD: "dummy",
         DB_PORT: 5432,
         DB_USERNAME: "dummy",
-        AWS_DYNAMODB_ENDPOINT: "http://localhost:3000",
-        AWS_DYNAMODB_TABLE_DOMAIN: "dummy",
-        AWS_COGNITO_USER_POOL_ID: "dummy",
         SERVICE_NAME: "dummy",
-        SLACK_WEBHOOK: "dummy",
         JWT_SECRET: "dummy-secret",
         WOMPI_BASE_URL: "https://api-sandbox.co.uat.wompi.dev/v1",
         WOMPI_PRIVATE_KEY: "prv_test_dummy",
@@ -86,14 +74,14 @@ describe("EnvironmentVariables", () => {
       };
 
       it("should throw a configuration error", () => {
-        expect(() => validate(requiredParms)).toThrow(
+        expect(() => validate(requiredParams)).toThrow(
           "You do not have the necessary configuration to run the microservice.",
         );
       });
     });
 
     describe("when JWT_EXPIRES_IN is provided", () => {
-      const requiredParms = {
+      const requiredParams = {
         PORT: 3000,
         AWS_REGION: "us-east-1",
         DB_HOST: "dummy",
@@ -101,11 +89,7 @@ describe("EnvironmentVariables", () => {
         DB_PASSWORD: "dummy",
         DB_PORT: 5432,
         DB_USERNAME: "dummy",
-        AWS_DYNAMODB_ENDPOINT: "http://localhost:3000",
-        AWS_DYNAMODB_TABLE_DOMAIN: "dummy",
-        AWS_COGNITO_USER_POOL_ID: "dummy",
         SERVICE_NAME: "dummy",
-        SLACK_WEBHOOK: "dummy",
         JWT_SECRET: "dummy-secret",
         JWT_EXPIRES_IN: "2h",
         WOMPI_BASE_URL: "https://api-sandbox.co.uat.wompi.dev/v1",
@@ -115,14 +99,14 @@ describe("EnvironmentVariables", () => {
       };
 
       it("should be success", () => {
-        paramsEnvironmentVariables = validate(requiredParms);
+        const paramsEnvironmentVariables = validate(requiredParams);
 
-        expect(paramsEnvironmentVariables).toEqual(requiredParms);
+        expect(paramsEnvironmentVariables).toEqual(requiredParams);
       });
     });
 
     describe("when WOMPI_MAX_POLL_WAIT_MS and WOMPI_POLL_INITIAL_INTERVAL_MS are omitted", () => {
-      const requiredParms = {
+      const requiredParams = {
         PORT: 3000,
         AWS_REGION: "us-east-1",
         DB_HOST: "dummy",
@@ -130,11 +114,7 @@ describe("EnvironmentVariables", () => {
         DB_PASSWORD: "dummy",
         DB_PORT: 5432,
         DB_USERNAME: "dummy",
-        AWS_DYNAMODB_ENDPOINT: "http://localhost:3000",
-        AWS_DYNAMODB_TABLE_DOMAIN: "dummy",
-        AWS_COGNITO_USER_POOL_ID: "dummy",
         SERVICE_NAME: "dummy",
-        SLACK_WEBHOOK: "dummy",
         JWT_SECRET: "dummy-secret",
         WOMPI_BASE_URL: "https://api-sandbox.co.uat.wompi.dev/v1",
         WOMPI_PUBLIC_KEY: "pub_test_dummy",
@@ -143,14 +123,14 @@ describe("EnvironmentVariables", () => {
       };
 
       it("should be success", () => {
-        paramsEnvironmentVariables = validate(requiredParms);
+        const paramsEnvironmentVariables = validate(requiredParams);
 
-        expect(paramsEnvironmentVariables).toEqual(requiredParms);
+        expect(paramsEnvironmentVariables).toEqual(requiredParams);
       });
     });
 
     describe("when WOMPI_MAX_POLL_WAIT_MS and WOMPI_POLL_INITIAL_INTERVAL_MS are provided", () => {
-      const requiredParms = {
+      const requiredParams = {
         PORT: 3000,
         AWS_REGION: "us-east-1",
         DB_HOST: "dummy",
@@ -158,11 +138,7 @@ describe("EnvironmentVariables", () => {
         DB_PASSWORD: "dummy",
         DB_PORT: 5432,
         DB_USERNAME: "dummy",
-        AWS_DYNAMODB_ENDPOINT: "http://localhost:3000",
-        AWS_DYNAMODB_TABLE_DOMAIN: "dummy",
-        AWS_COGNITO_USER_POOL_ID: "dummy",
         SERVICE_NAME: "dummy",
-        SLACK_WEBHOOK: "dummy",
         JWT_SECRET: "dummy-secret",
         WOMPI_BASE_URL: "https://api-sandbox.co.uat.wompi.dev/v1",
         WOMPI_PUBLIC_KEY: "pub_test_dummy",
@@ -173,9 +149,9 @@ describe("EnvironmentVariables", () => {
       };
 
       it("should be success", () => {
-        paramsEnvironmentVariables = validate(requiredParms);
+        const paramsEnvironmentVariables = validate(requiredParams);
 
-        expect(paramsEnvironmentVariables).toEqual(requiredParms);
+        expect(paramsEnvironmentVariables).toEqual(requiredParams);
       });
     });
   });

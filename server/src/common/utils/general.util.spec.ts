@@ -1,15 +1,5 @@
-import { metrics } from "@opentelemetry/api";
 import { ClsServiceManager } from "nestjs-cls";
-import { buildMeterName, getMeter, getTraceId } from "./general.util";
-
-jest.mock("@opentelemetry/api", () => ({
-  trace: {
-    getTracer: jest.fn(),
-  },
-  metrics: {
-    getMeter: jest.fn(),
-  },
-}));
+import { getTraceId } from "./general.util";
 
 jest.mock("nestjs-cls", () => ({
   ClsServiceManager: {
@@ -29,29 +19,6 @@ describe("GeneralUtils", () => {
 
       expect(ClsServiceManager.getClsService).toHaveBeenCalled();
       expect(traceId).toBe(mockId);
-    });
-  });
-
-  describe("getMeter", () => {
-    it("should return a meter", () => {
-      const mockMeter = {};
-      (metrics.getMeter as jest.Mock).mockReturnValue(mockMeter);
-
-      const meter = getMeter();
-
-      expect(metrics.getMeter).toHaveBeenCalledWith("default-meter");
-      expect(meter).toBe(mockMeter);
-    });
-  });
-
-  describe("buildMeterName", () => {
-    it("should build a meter name with the service name", () => {
-      process.env.SERVICE_NAME = "test-service";
-      const name = "test-meter";
-
-      const meterName = buildMeterName(name);
-
-      expect(meterName).toBe("test-service_test-meter");
     });
   });
 });

@@ -16,6 +16,7 @@ describe("GeneralConfig", () => {
   });
 
   it("should return the default port", () => {
+    delete process.env.PORT;
     const general = generalConfig();
 
     expect(general.version).toBe("3001");
