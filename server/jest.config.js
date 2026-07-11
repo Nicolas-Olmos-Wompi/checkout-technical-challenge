@@ -22,7 +22,6 @@ module.exports = {
     '!e2e/**/*.{js,jsx,ts,tsx}',
     '!<rootDir>/node_modules/',
     '!src/main.ts',
-    '!src/instrumentation.ts',
     '!src/common/config/**/*.{js,jsx,ts,tsx}',
     '!src/common/exceptions/**/*.{js,jsx,ts,tsx}',
     '!src/common/interceptors/**/*.{js,jsx,ts,tsx}',
