@@ -1,11 +1,13 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { IProductRepository } from "../interface/product.repository";
+import { ILogger } from "../interface/logger.interface";
 import { Product } from "../model/product.entity";
 import { GetProductsUseCase } from "./get-products.usecase";
 
 describe("GetProductsUseCase", () => {
   let getProductsUseCase: GetProductsUseCase;
   let productRepository: MockProxy<IProductRepository>;
+  let logger: MockProxy<ILogger>;
 
   const buildProduct = (id: string): Product =>
     new Product(
@@ -21,7 +23,8 @@ describe("GetProductsUseCase", () => {
 
   beforeEach(() => {
     productRepository = mock<IProductRepository>();
-    getProductsUseCase = new GetProductsUseCase(productRepository);
+    logger = mock<ILogger>();
+    getProductsUseCase = new GetProductsUseCase(productRepository, logger);
   });
 
   afterEach(() => {

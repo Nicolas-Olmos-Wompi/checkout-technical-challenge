@@ -16,23 +16,37 @@ export class LoggerService implements ILogger {
     this.logger = new Logger(this.sourceClass);
   }
 
-  debug(message: string): void {
-    this.logger.debug(message);
+  debug(message: string, context?: Record<string, unknown>): void {
+    this.logger.debug(this.formatMessage(message, context));
   }
-  warn(message: string | object): void {
-    this.logger.warn(message);
+
+  warn(message: string | object, context?: Record<string, unknown>): void {
+    const msg = typeof message === "string" ? message : JSON.stringify(message);
+    this.logger.warn(this.formatMessage(msg, context));
   }
-  error(error: string | Error | object): void {
+
+  error(error: unknown, context?: Record<string, unknown>): void {
     if (error instanceof Error) {
-      this.logger.error(error.message, error.stack);
+      const msg = this.formatMessage(error.message, context);
+      this.logger.error(msg, error.stack);
     } else if (error instanceof Object) {
-      this.logger.error(JSON.stringify(error));
+      this.logger.error(this.formatMessage(JSON.stringify(error), context));
     } else {
-      this.logger.error(error);
+      this.logger.error(this.formatMessage(String(error), context));
     }
   }
 
-  log(message: string | object): void {
-    this.logger.log(message);
+  log(message: string, context?: Record<string, unknown>): void {
+    this.logger.log(this.formatMessage(message, context));
+  }
+
+  private formatMessage(
+    message: string,
+    context?: Record<string, unknown>,
+  ): string {
+    if (!context || Object.keys(context).length === 0) {
+      return message;
+    }
+    return `${message} | ${JSON.stringify(context)}`;
   }
 }

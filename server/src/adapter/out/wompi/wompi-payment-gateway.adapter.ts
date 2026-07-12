@@ -7,10 +7,13 @@ import { IPaymentGateway } from "domain/src/interface/payment-gateway";
 import { MerchantAcceptance } from "domain/src/model/order.type";
 import { CustomException } from "../../../model/exceptions/custom.model";
 import { ERROR_STATES_MESSAGES } from "../../../common/response-states/error-states.messages";
+import { LoggerService } from "../../../common/logger/logger.service";
 import { WompiMerchantResponse } from "./wompi-merchant-response.type";
 
 @Injectable()
 export class WompiPaymentGatewayAdapter implements IPaymentGateway {
+  private readonly logger = new LoggerService("WompiPaymentGateway");
+
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
@@ -26,6 +29,10 @@ export class WompiPaymentGatewayAdapter implements IPaymentGateway {
           .get<WompiMerchantResponse>(`${baseUrl}/merchants/${publicKey}`)
           .pipe(
             catchError((error: AxiosError) => {
+              this.logger.error("Wompi getAcceptanceTokens failed", {
+                status: error.response?.status,
+                wompiError: error.response?.data,
+              });
               throw new CustomException(
                 error,
                 "Technical",
@@ -40,6 +47,9 @@ export class WompiPaymentGatewayAdapter implements IPaymentGateway {
       if (error instanceof CustomException) {
         throw error;
       }
+      this.logger.error("Unexpected error in getAcceptanceTokens", {
+        message: error instanceof Error ? error.message : String(error),
+      });
       throw new CustomException(
         error as Error,
         "Technical",

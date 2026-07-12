@@ -2,6 +2,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { IUserRepository } from "../interface/user.repository";
 import { IPasswordHasher } from "../interface/password-hasher";
 import { ITokenGenerator } from "../interface/token-generator";
+import { ILogger } from "../interface/logger.interface";
 import { User } from "../model/user.entity";
 import { UsernameAlreadyExistsError } from "../model/auth.errors";
 import { SignupUseCase } from "./signup.usecase";
@@ -11,6 +12,7 @@ describe("SignupUseCase", () => {
   let userRepository: MockProxy<IUserRepository>;
   let passwordHasher: MockProxy<IPasswordHasher>;
   let tokenService: MockProxy<ITokenGenerator>;
+  let logger: MockProxy<ILogger>;
 
   const buildUser = (): User =>
     Object.assign(new User(), {
@@ -26,10 +28,12 @@ describe("SignupUseCase", () => {
     userRepository = mock<IUserRepository>();
     passwordHasher = mock<IPasswordHasher>();
     tokenService = mock<ITokenGenerator>();
+    logger = mock<ILogger>();
     signupUseCase = new SignupUseCase(
       userRepository,
       passwordHasher,
       tokenService,
+      logger,
     );
   });
 

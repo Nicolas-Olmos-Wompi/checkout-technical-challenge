@@ -4,6 +4,7 @@ import { IUserRepository } from "../interface/user.repository";
 import { IPaymentMethodStrategy } from "../interface/payment-method-strategy";
 import { IIntegritySignatureGenerator } from "../interface/integrity-signature-generator";
 import { ITransactionGateway } from "../interface/transaction-gateway";
+import { ILogger } from "../interface/logger.interface";
 import { TransactionStatusPoller } from "./transaction-status-poller";
 import { Order } from "../model/order.entity";
 import { User } from "../model/user.entity";
@@ -26,6 +27,7 @@ describe("PayOrderUseCase", () => {
   let cardHandler: MockProxy<IPaymentMethodStrategy<CardPaymentCommand>>;
   let signatureGenerator: MockProxy<IIntegritySignatureGenerator>;
   let transactionGateway: MockProxy<ITransactionGateway>;
+  let logger: MockProxy<ILogger>;
   let poller: TransactionStatusPoller;
 
   const userId = "11111111-1111-1111-1111-111111111111";
@@ -82,9 +84,13 @@ describe("PayOrderUseCase", () => {
     orderRepository = mock<IOrderRepository>();
     userRepository = mock<IUserRepository>();
     cardHandler = mock<IPaymentMethodStrategy<CardPaymentCommand>>();
-    cardHandler.type = "CARD";
+    Object.defineProperty(cardHandler, "type", {
+      value: "CARD",
+      writable: true,
+    });
     signatureGenerator = mock<IIntegritySignatureGenerator>();
     transactionGateway = mock<ITransactionGateway>();
+    logger = mock<ILogger>();
     poller = new TransactionStatusPoller(() => Promise.resolve(), {
       maxWaitMs: 15000,
       initialIntervalMs: 1000,
@@ -119,6 +125,7 @@ describe("PayOrderUseCase", () => {
       signatureGenerator,
       transactionGateway,
       poller,
+      logger,
     );
   });
 
@@ -167,6 +174,7 @@ describe("PayOrderUseCase", () => {
       signatureGenerator,
       transactionGateway,
       timeoutPoller,
+      logger,
     );
 
     const result = await payOrderUseCase.apply(buildCommand());
@@ -230,7 +238,10 @@ describe("PayOrderUseCase", () => {
 
   it("should require zero changes to support a second payment method handler", async () => {
     const nequiHandler = mock<IPaymentMethodStrategy>();
-    nequiHandler.type = "NEQUI" as never;
+    Object.defineProperty(nequiHandler, "type", {
+      value: "NEQUI",
+      writable: true,
+    });
     nequiHandler.tokenize.mockResolvedValue({
       token: "nequi-token",
       displayInfo: { phoneNumber: "3001234567" },
@@ -247,6 +258,7 @@ describe("PayOrderUseCase", () => {
       signatureGenerator,
       transactionGateway,
       poller,
+      logger,
     );
 
     const result = await payOrderUseCase.apply(

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
+import { AxiosError } from "axios";
 import { catchError, firstValueFrom } from "rxjs";
 import { ITransactionGateway } from "domain/src/interface/transaction-gateway";
 import {
@@ -8,10 +9,13 @@ import {
   TransactionResult,
 } from "domain/src/model/payment.type";
 import { TransactionCreationError } from "domain/src/model/payment.errors";
+import { LoggerService } from "../../../common/logger/logger.service";
 import { WompiTransactionResponse } from "./wompi-transaction-response.type";
 
 @Injectable()
 export class WompiTransactionGatewayAdapter implements ITransactionGateway {
+  private readonly logger = new LoggerService("WompiTransactionGateway");
+
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
@@ -40,7 +44,12 @@ export class WompiTransactionGatewayAdapter implements ITransactionGateway {
             { headers: { Authorization: `Bearer ${privateKey}` } },
           )
           .pipe(
-            catchError(() => {
+            catchError((error: AxiosError) => {
+              this.logger.error("Wompi createTransaction failed", {
+                status: error.response?.status,
+                wompiError: error.response?.data,
+                reference: command.reference,
+              });
               throw new TransactionCreationError(
                 "the transaction could not be created",
               );
@@ -53,6 +62,10 @@ export class WompiTransactionGatewayAdapter implements ITransactionGateway {
       if (error instanceof TransactionCreationError) {
         throw error;
       }
+      this.logger.error("Unexpected error in createTransaction", {
+        message: error instanceof Error ? error.message : String(error),
+        reference: command.reference,
+      });
       throw new TransactionCreationError(
         "the transaction could not be created",
       );
@@ -73,7 +86,12 @@ export class WompiTransactionGatewayAdapter implements ITransactionGateway {
             { headers: { Authorization: `Bearer ${publicKey}` } },
           )
           .pipe(
-            catchError(() => {
+            catchError((error: AxiosError) => {
+              this.logger.error("Wompi getTransactionStatus failed", {
+                status: error.response?.status,
+                wompiError: error.response?.data,
+                transactionId,
+              });
               throw new TransactionCreationError(
                 "the transaction status could not be retrieved",
               );
@@ -86,6 +104,10 @@ export class WompiTransactionGatewayAdapter implements ITransactionGateway {
       if (error instanceof TransactionCreationError) {
         throw error;
       }
+      this.logger.error("Unexpected error in getTransactionStatus", {
+        message: error instanceof Error ? error.message : String(error),
+        transactionId,
+      });
       throw new TransactionCreationError(
         "the transaction status could not be retrieved",
       );
