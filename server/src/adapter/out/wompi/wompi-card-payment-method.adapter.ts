@@ -30,6 +30,9 @@ export class WompiCardPaymentMethodAdapter implements IPaymentMethodStrategy<Car
     const publicKey = this.configService.get<string>("WOMPI_PUBLIC_KEY");
 
     try {
+      this.logger.log(
+        `Wompi card tokenization body: ${JSON.stringify(command)}`,
+      );
       const response = await firstValueFrom(
         this.httpService
           .post<WompiCardTokenResponse>(

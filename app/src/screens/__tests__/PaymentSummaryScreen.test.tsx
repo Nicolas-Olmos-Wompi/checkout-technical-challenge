@@ -146,7 +146,7 @@ describe("PaymentSummaryScreen", () => {
     const store = createTestStore();
     await store.dispatch(
       setCard({
-        cardNumber: "4242424242424242",
+        cardNumber: "4242 4242 4242 4242",
         expMonth: "12",
         expYear: "29",
         cvc: "123",
