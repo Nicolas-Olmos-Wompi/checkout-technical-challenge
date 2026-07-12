@@ -1,6 +1,3 @@
-/**
- * Mirrors server DTOs in server/src/model/dto/auth.type.ts
- */
 export type LoginRequest = {
   username: string;
   password: string;

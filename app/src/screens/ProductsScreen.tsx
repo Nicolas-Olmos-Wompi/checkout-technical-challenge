@@ -8,8 +8,6 @@ import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Products">;
 
-// Placeholder landing screen after authentication.
-// Product listing UI will be implemented in a follow-up task.
 export default function ProductsScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
