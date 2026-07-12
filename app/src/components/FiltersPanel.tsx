@@ -17,12 +17,6 @@ type Props = {
   initialMaxPrice?: string;
 };
 
-/**
- * Min/max price filter fields. Purely controlled from the outside via
- * onApply/onClear — no Redux coupling here, the parent screen wires this to
- * productsSlice. Presentational only; expand/collapse is owned by the
- * Backdrop that hosts this panel on its back layer.
- */
 export default function FiltersPanel({
   onApply,
   onClear,

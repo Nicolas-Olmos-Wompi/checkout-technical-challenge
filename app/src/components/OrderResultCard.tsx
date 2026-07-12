@@ -9,11 +9,6 @@ type Props = {
   onContinue: () => void;
 };
 
-/**
- * Displays the result of a successfully created order (status, total) and a
- * "Continue to payment" action. Purely presentational — no navigation or
- * Redux coupling, so it stays testable in isolation.
- */
 export default function OrderResultCard({ order, onContinue }: Props) {
   const fee = order.delivery.fee;
   const productPriceInCents = order.totalInCents - (fee ?? 0);

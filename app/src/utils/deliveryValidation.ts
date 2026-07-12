@@ -1,12 +1,3 @@
-/**
- * Client-side validation for the DeliveryScreen form. Country is excluded —
- * it's hardcoded to "Colombia" and not user-editable.
- *
- * postalCode and phoneNumber follow Colombian conventions:
- * - postalCode: exactly 6 numeric digits.
- * - phoneNumber: 10 digits, optionally prefixed with "+57".
- */
-
 const POSTAL_CODE_REGEX = /^\d{6}$/;
 const PHONE_REGEX = /^(\+57)?\d{10}$/;
 

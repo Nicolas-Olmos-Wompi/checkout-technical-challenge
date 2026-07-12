@@ -4,34 +4,16 @@ import { Animated, Pressable, StyleSheet, Text, View, ViewStyle } from "react-na
 import { colors, spacing, fontSize } from "../theme";
 
 type Props = {
-  /** Label shown on the toggle control, e.g. "Filters" or "Order summary". */
   toggleLabel: string;
-  /** Contextual content revealed/concealed behind the front layer. */
   backLayer: ReactNode;
-  /** Main content, always rendered. */
   frontLayer: ReactNode;
-  /** Whether the back layer starts revealed. Defaults to false. */
   initiallyRevealed?: boolean;
-  /**
-   * Optional style override for the outer container. Defaults to flex: 1
-   * (fills remaining space, e.g. wrapping a scrollable list). Pass
-   * `{ flex: 0 }` when the Backdrop should size to its content instead,
-   * e.g. when docked above a sticky footer.
-   */
   style?: ViewStyle;
 };
 
 const ANIMATION_DURATION_MS = 220;
 const SLIDE_DISTANCE = 16;
 
-/**
- * Generic Material Design Backdrop (https://m2.material.io/components/backdrop).
- * Composed of a back layer (contextual actions/content) and a front layer
- * (primary content). The front layer always renders; the back layer is
- * revealed/concealed via the toggle control. The front layer slides
- * (translateY + fade) when the back layer is revealed/concealed, per the
- * Material motion pattern, using the RN Animated API.
- */
 export default function Backdrop({
   toggleLabel,
   backLayer,
