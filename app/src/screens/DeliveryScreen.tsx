@@ -124,11 +124,12 @@ export default function DeliveryScreen({ navigation, route }: Props) {
 
   function handleDismissReceipt() {
     setIsModalDismissed(true);
-    const formUnchangedSinceSubmission =
-      submittedDelivery !== null && areDeliveryFieldsEqual(form, submittedDelivery);
-    if (!formUnchangedSinceSubmission) {
-      dispatch(resetOrder());
-    }
+    // Once the user has seen and dismissed the receipt, the successful
+    // order is no longer "current" — always reset it so Submit re-enables
+    // and the user can place a new order, whether or not they change the
+    // form first. (Editing the form or quantity *before* dismissing is
+    // still caught by the hasChangedSinceSubmission effect above.)
+    dispatch(resetOrder());
   }
 
   const isIncrementDisabled = quantity >= product.stock;
@@ -207,6 +208,7 @@ export default function DeliveryScreen({ navigation, route }: Props) {
       <View style={styles.backdropWrapper}>
         <Backdrop
           toggleLabel="Order summary"
+          initiallyRevealed
           backLayer={
             <View style={styles.orderSummary}>
               <View style={styles.quantityRow}>

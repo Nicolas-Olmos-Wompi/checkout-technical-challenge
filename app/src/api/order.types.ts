@@ -49,3 +49,41 @@ export type PendingOrderResponse = {
     personalDataAuth: AcceptanceTokenResponse;
   };
 };
+
+/**
+ * Mirrors server DTOs in server/src/model/dto/order.type.ts
+ */
+export type CardPaymentRequest = {
+  cardNumber: string;
+  expMonth: string;
+  expYear: string;
+  cvc: string;
+  cardHolder: string;
+};
+
+export type PayOrderRequest = {
+  paymentMethodType: "CARD";
+  card: CardPaymentRequest;
+};
+
+export type PayOrderResponse = {
+  orderId: string;
+  status: string;
+  paymentGatewayTransactionId: string | null;
+  timedOut: boolean;
+  paymentMethod: {
+    type: string;
+    displayInfo: Record<string, string>;
+  };
+};
+
+export type OrderResponse = {
+  orderId: string;
+  productId: string;
+  quantity: number;
+  totalInCents: number;
+  status: string;
+  paymentGatewayTransactionId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
