@@ -17,7 +17,8 @@ import type { RootStackParamList } from "../navigation/types";
 type Props = NativeStackScreenProps<RootStackParamList, "Card">;
 
 function formatCardNumber(value: string): string {
-  return value.replace(/\D/g, "").slice(0, 19);
+  const digits = value.replace(/\D/g, "").slice(0, 16);
+  return digits.replace(/(.{4})/g, "$1 ").trim();
 }
 
 function formatExpiry(value: string): string {
