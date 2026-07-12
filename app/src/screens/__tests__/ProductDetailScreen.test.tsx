@@ -19,7 +19,10 @@ const product: Product = {
 };
 
 async function renderScreen(overrides: Partial<Product> = {}) {
-  const navigation = { goBack: jest.fn() } as unknown as Props["navigation"];
+  const navigation = {
+    goBack: jest.fn(),
+    navigate: jest.fn(),
+  } as unknown as Props["navigation"];
   const route = { params: { product: { ...product, ...overrides } } } as Props["route"];
 
   await render(<ProductDetailScreen navigation={navigation} route={route} />);
@@ -69,5 +72,14 @@ describe("ProductDetailScreen", () => {
     await user.press(screen.getByText("Back"));
 
     expect(navigation.goBack).toHaveBeenCalled();
+  });
+
+  it("navigates to Delivery with the product when Buy is pressed", async () => {
+    const user = userEvent.setup();
+    const { navigation } = await renderScreen();
+
+    await user.press(screen.getByText("Buy"));
+
+    expect(navigation.navigate).toHaveBeenCalledWith("Delivery", { product });
   });
 });
