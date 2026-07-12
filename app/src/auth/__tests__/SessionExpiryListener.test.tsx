@@ -126,6 +126,8 @@ describe("SessionExpiryListener", () => {
       status: "idle",
       error: null,
       submittedDelivery: null,
+      acceptedEndUserPolicy: false,
+      acceptedPersonalDataAuth: false,
     });
 
     await act(async () => {

@@ -3,8 +3,13 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Backdrop from "../components/Backdrop";
 import PrimaryButton from "../components/PrimaryButton";
 import CardBrandLogo from "../components/CardBrandLogo";
+import AcceptanceCheckbox from "../components/AcceptanceCheckbox";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { payOrder } from "../features/payment/paymentSlice";
+import {
+  setAcceptedEndUserPolicy,
+  setAcceptedPersonalDataAuth,
+} from "../features/orders/ordersSlice";
 import { formatPrice } from "../utils/formatPrice";
 import { colors, radius, spacing, fontSize } from "../theme";
 import type { RootStackParamList } from "../navigation/types";
@@ -13,14 +18,21 @@ type Props = NativeStackScreenProps<RootStackParamList, "PaymentSummary">;
 
 export default function PaymentSummaryScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
-  const { order } = useAppSelector((state) => state.orders);
+  const { order, acceptedEndUserPolicy, acceptedPersonalDataAuth } = useAppSelector(
+    (state) => state.orders,
+  );
   const card = useAppSelector((state) => state.card);
   const paymentStatus = useAppSelector((state) => state.payment.status);
 
   const lastFour = card.cardNumber.replace(/\s/g, "").slice(-4);
   const productPriceInCents = order ? order.totalInCents - (order.delivery.fee ?? 0) : 0;
   const isPaying = paymentStatus === "paying" || paymentStatus === "polling";
-  const canPay = order !== null && card.status === "succeeded" && !isPaying;
+  const canPay =
+    order !== null &&
+    card.status === "succeeded" &&
+    acceptedEndUserPolicy &&
+    acceptedPersonalDataAuth &&
+    !isPaying;
 
   async function handlePay() {
     if (!order) return;
@@ -102,6 +114,27 @@ export default function PaymentSummaryScreen({ navigation }: Props) {
           }
           style={styles.backdrop}
         />
+
+        {order ? (
+          <View style={styles.acceptanceSection} testID="acceptance-section">
+            <AcceptanceCheckbox
+              label="I accept the"
+              linkText="Terms and Conditions"
+              url={order.presignedAcceptance.endUserPolicy.permalink}
+              checked={acceptedEndUserPolicy}
+              onToggle={(checked) => dispatch(setAcceptedEndUserPolicy(checked))}
+              testID="accept-end-user-policy"
+            />
+            <AcceptanceCheckbox
+              label="I accept the"
+              linkText="Personal Data Policy"
+              url={order.presignedAcceptance.personalDataAuth.permalink}
+              checked={acceptedPersonalDataAuth}
+              onToggle={(checked) => dispatch(setAcceptedPersonalDataAuth(checked))}
+              testID="accept-personal-data-auth"
+            />
+          </View>
+        ) : null}
       </ScrollView>
 
       <View style={styles.footer}>
@@ -135,6 +168,10 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 0,
+  },
+  acceptanceSection: {
+    marginTop: spacing.lg,
+    gap: spacing.sm,
   },
   row: {
     flexDirection: "row",

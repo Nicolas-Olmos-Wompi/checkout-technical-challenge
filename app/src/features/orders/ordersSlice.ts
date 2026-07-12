@@ -11,6 +11,8 @@ export type OrdersState = {
   status: OrdersStatus;
   error: string | null;
   submittedDelivery: DeliveryFormFields | null;
+  acceptedEndUserPolicy: boolean;
+  acceptedPersonalDataAuth: boolean;
 };
 
 const initialState: OrdersState = {
@@ -18,6 +20,8 @@ const initialState: OrdersState = {
   status: "idle",
   error: null,
   submittedDelivery: null,
+  acceptedEndUserPolicy: false,
+  acceptedPersonalDataAuth: false,
 };
 
 function toErrorMessage(error: unknown): string {
@@ -46,6 +50,14 @@ const ordersSlice = createSlice({
       state.status = "idle";
       state.error = null;
       state.submittedDelivery = null;
+      state.acceptedEndUserPolicy = false;
+      state.acceptedPersonalDataAuth = false;
+    },
+    setAcceptedEndUserPolicy(state, action: PayloadAction<boolean>) {
+      state.acceptedEndUserPolicy = action.payload;
+    },
+    setAcceptedPersonalDataAuth(state, action: PayloadAction<boolean>) {
+      state.acceptedPersonalDataAuth = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -60,6 +72,8 @@ const ordersSlice = createSlice({
           state.status = "succeeded";
           state.order = action.payload;
           state.error = null;
+          state.acceptedEndUserPolicy = false;
+          state.acceptedPersonalDataAuth = false;
           const { delivery } = action.meta.arg;
           state.submittedDelivery = {
             personName: delivery.personName,
@@ -78,5 +92,6 @@ const ordersSlice = createSlice({
   },
 });
 
-export const { resetOrder } = ordersSlice.actions;
+export const { resetOrder, setAcceptedEndUserPolicy, setAcceptedPersonalDataAuth } =
+  ordersSlice.actions;
 export default ordersSlice.reducer;

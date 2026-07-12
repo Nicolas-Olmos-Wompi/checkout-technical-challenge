@@ -1,5 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import ordersReducer, { createOrder, resetOrder } from "../ordersSlice";
+import ordersReducer, {
+  createOrder,
+  resetOrder,
+  setAcceptedEndUserPolicy,
+  setAcceptedPersonalDataAuth,
+} from "../ordersSlice";
 import * as ordersApi from "../../../api/orders";
 import { ApiError } from "../../../api/types";
 import type { CreateOrderRequest, PendingOrderResponse } from "../../../api/order.types";
@@ -58,6 +63,8 @@ describe("ordersSlice reducer", () => {
       status: "idle",
       error: null,
       submittedDelivery: null,
+      acceptedEndUserPolicy: false,
+      acceptedPersonalDataAuth: false,
     });
   });
 
@@ -100,6 +107,22 @@ describe("ordersSlice reducer", () => {
       });
     });
 
+    it("resets acceptance flags to false on fulfillment, even if previously accepted", () => {
+      const store = createTestStore();
+      store.dispatch(setAcceptedEndUserPolicy(true));
+      store.dispatch(setAcceptedPersonalDataAuth(true));
+
+      store.dispatch({
+        type: createOrder.fulfilled.type,
+        payload: order,
+        meta: { arg: request },
+      });
+
+      const state = store.getState().orders;
+      expect(state.acceptedEndUserPolicy).toBe(false);
+      expect(state.acceptedPersonalDataAuth).toBe(false);
+    });
+
     it("sets an error message and status to failed on rejection", () => {
       const store = createTestStore();
       store.dispatch({
@@ -126,6 +149,8 @@ describe("ordersSlice reducer", () => {
         status: "idle",
         error: null,
         submittedDelivery: null,
+        acceptedEndUserPolicy: false,
+        acceptedPersonalDataAuth: false,
       });
     });
 
@@ -138,6 +163,60 @@ describe("ordersSlice reducer", () => {
       });
       store.dispatch(resetOrder());
       expect(store.getState().orders.submittedDelivery).toBeNull();
+    });
+
+    it("clears acceptance flags back to false", () => {
+      const store = createTestStore();
+      store.dispatch(setAcceptedEndUserPolicy(true));
+      store.dispatch(setAcceptedPersonalDataAuth(true));
+
+      store.dispatch(resetOrder());
+
+      const state = store.getState().orders;
+      expect(state.acceptedEndUserPolicy).toBe(false);
+      expect(state.acceptedPersonalDataAuth).toBe(false);
+    });
+  });
+
+  describe("setAcceptedEndUserPolicy", () => {
+    it("sets acceptedEndUserPolicy independently of acceptedPersonalDataAuth", () => {
+      const store = createTestStore();
+
+      store.dispatch(setAcceptedEndUserPolicy(true));
+
+      const state = store.getState().orders;
+      expect(state.acceptedEndUserPolicy).toBe(true);
+      expect(state.acceptedPersonalDataAuth).toBe(false);
+    });
+
+    it("can toggle the flag back to false", () => {
+      const store = createTestStore();
+
+      store.dispatch(setAcceptedEndUserPolicy(true));
+      store.dispatch(setAcceptedEndUserPolicy(false));
+
+      expect(store.getState().orders.acceptedEndUserPolicy).toBe(false);
+    });
+  });
+
+  describe("setAcceptedPersonalDataAuth", () => {
+    it("sets acceptedPersonalDataAuth independently of acceptedEndUserPolicy", () => {
+      const store = createTestStore();
+
+      store.dispatch(setAcceptedPersonalDataAuth(true));
+
+      const state = store.getState().orders;
+      expect(state.acceptedPersonalDataAuth).toBe(true);
+      expect(state.acceptedEndUserPolicy).toBe(false);
+    });
+
+    it("can toggle the flag back to false", () => {
+      const store = createTestStore();
+
+      store.dispatch(setAcceptedPersonalDataAuth(true));
+      store.dispatch(setAcceptedPersonalDataAuth(false));
+
+      expect(store.getState().orders.acceptedPersonalDataAuth).toBe(false);
     });
   });
 });
