@@ -41,6 +41,7 @@ describe("store", () => {
       order: null,
       status: "idle",
       error: null,
+      submittedDelivery: null,
     });
   });
 

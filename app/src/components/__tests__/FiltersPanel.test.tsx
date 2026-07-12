@@ -3,18 +3,8 @@ import { render, screen, userEvent } from "@testing-library/react-native";
 import FiltersPanel from "../FiltersPanel";
 
 describe("FiltersPanel", () => {
-  it("is collapsed by default, hiding the price inputs", async () => {
+  it("renders the price inputs immediately (no internal toggle)", async () => {
     await render(<FiltersPanel onApply={jest.fn()} onClear={jest.fn()} />);
-    expect(screen.queryByLabelText("Minimum price")).toBeNull();
-    expect(screen.queryByLabelText("Maximum price")).toBeNull();
-  });
-
-  it("expands to show price inputs when the toggle is pressed", async () => {
-    const user = userEvent.setup();
-    await render(<FiltersPanel onApply={jest.fn()} onClear={jest.fn()} />);
-
-    await user.press(screen.getByText("Filters"));
-
     expect(screen.getByLabelText("Minimum price")).toBeTruthy();
     expect(screen.getByLabelText("Maximum price")).toBeTruthy();
   });
@@ -24,7 +14,6 @@ describe("FiltersPanel", () => {
     const onApply = jest.fn();
     await render(<FiltersPanel onApply={onApply} onClear={jest.fn()} />);
 
-    await user.press(screen.getByText("Filters"));
     await user.type(screen.getByLabelText("Minimum price"), "100");
     await user.type(screen.getByLabelText("Maximum price"), "500");
     await user.press(screen.getByText("Apply"));
@@ -37,7 +26,6 @@ describe("FiltersPanel", () => {
     const onApply = jest.fn();
     await render(<FiltersPanel onApply={onApply} onClear={jest.fn()} />);
 
-    await user.press(screen.getByText("Filters"));
     await user.type(screen.getByLabelText("Minimum price"), "500");
     await user.type(screen.getByLabelText("Maximum price"), "100");
     await user.press(screen.getByText("Apply"));
@@ -53,7 +41,6 @@ describe("FiltersPanel", () => {
     const onApply = jest.fn();
     await render(<FiltersPanel onApply={onApply} onClear={jest.fn()} />);
 
-    await user.press(screen.getByText("Filters"));
     await user.type(screen.getByLabelText("Minimum price"), "abc");
     await user.press(screen.getByText("Apply"));
 
@@ -66,7 +53,6 @@ describe("FiltersPanel", () => {
     const onClear = jest.fn();
     await render(<FiltersPanel onApply={jest.fn()} onClear={onClear} />);
 
-    await user.press(screen.getByText("Filters"));
     await user.type(screen.getByLabelText("Minimum price"), "100");
     await user.press(screen.getByText("Clear"));
 
@@ -75,7 +61,6 @@ describe("FiltersPanel", () => {
   });
 
   it("pre-fills inputs from initialMinPrice/initialMaxPrice props", async () => {
-    const user = userEvent.setup();
     await render(
       <FiltersPanel
         onApply={jest.fn()}
@@ -84,8 +69,6 @@ describe("FiltersPanel", () => {
         initialMaxPrice="900"
       />,
     );
-
-    await user.press(screen.getByText("Filters"));
 
     expect(screen.getByLabelText("Minimum price").props.value).toBe("200");
     expect(screen.getByLabelText("Maximum price").props.value).toBe("900");

@@ -1,8 +1,10 @@
 import { apiRequest } from "../client";
 import { ApiError } from "../types";
 import * as tokenStorage from "../../auth/tokenStorage";
+import { notifySessionExpired } from "../../auth/sessionExpiry";
 
 jest.mock("../../auth/tokenStorage");
+jest.mock("../../auth/sessionExpiry");
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {
@@ -151,6 +153,51 @@ describe("apiRequest", () => {
     await expect(apiRequest("/auth/login", { method: "POST" })).rejects.toMatchObject({
       message: "Unable to reach the server. Check your connection and try again.",
       status: 0,
+    });
+  });
+
+  describe("session expiry notification", () => {
+    const mockedNotifySessionExpired = notifySessionExpired as jest.Mock;
+
+    it("notifies session expiry on a 401 response for an authenticated request", async () => {
+      mockedGetToken.mockResolvedValue("stored-token-123");
+      (global.fetch as jest.Mock).mockResolvedValue(
+        jsonResponse({ status: 401, code: "401", message: "Unauthorized" }, 401),
+      );
+
+      await expect(apiRequest("/products", { auth: true })).rejects.toBeInstanceOf(
+        ApiError,
+      );
+
+      expect(mockedNotifySessionExpired).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not notify session expiry on a 401 response for an unauthenticated request", async () => {
+      (global.fetch as jest.Mock).mockResolvedValue(
+        jsonResponse(
+          { status: 401, code: "401", message: "Invalid username or password." },
+          401,
+        ),
+      );
+
+      await expect(apiRequest("/auth/login", { method: "POST" })).rejects.toBeInstanceOf(
+        ApiError,
+      );
+
+      expect(mockedNotifySessionExpired).not.toHaveBeenCalled();
+    });
+
+    it("does not notify session expiry on a non-401 error status, even when authenticated", async () => {
+      mockedGetToken.mockResolvedValue("stored-token-123");
+      (global.fetch as jest.Mock).mockResolvedValue(
+        jsonResponse({ status: 500, code: "500", message: "Server error" }, 500),
+      );
+
+      await expect(apiRequest("/products", { auth: true })).rejects.toBeInstanceOf(
+        ApiError,
+      );
+
+      expect(mockedNotifySessionExpired).not.toHaveBeenCalled();
     });
   });
 });

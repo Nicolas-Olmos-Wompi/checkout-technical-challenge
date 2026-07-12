@@ -28,11 +28,6 @@ const order: PendingOrderResponse = {
 };
 
 describe("OrderResultCard", () => {
-  it("renders the order reference", async () => {
-    await render(<OrderResultCard order={order} onContinue={jest.fn()} />);
-    expect(screen.getByText("REF-12345")).toBeTruthy();
-  });
-
   it("renders the order status", async () => {
     await render(<OrderResultCard order={order} onContinue={jest.fn()} />);
     expect(screen.getByText("PENDING")).toBeTruthy();
@@ -41,6 +36,27 @@ describe("OrderResultCard", () => {
   it("renders the formatted total in COP", async () => {
     await render(<OrderResultCard order={order} onContinue={jest.fn()} />);
     expect(screen.getByText("$1.500")).toBeTruthy();
+  });
+
+  it("renders the product price as total minus delivery fee", async () => {
+    await render(<OrderResultCard order={order} onContinue={jest.fn()} />);
+    // totalInCents 150000 - fee 5000 = 145000 -> $1.450
+    expect(screen.getByText("$1.450")).toBeTruthy();
+  });
+
+  it("renders the delivery fee formatted", async () => {
+    await render(<OrderResultCard order={order} onContinue={jest.fn()} />);
+    expect(screen.getByText("$50")).toBeTruthy();
+  });
+
+  it("shows a fallback instead of a misleading $0 fee when fee is null", async () => {
+    const orderWithoutFee: PendingOrderResponse = {
+      ...order,
+      delivery: { ...order.delivery, fee: null },
+    };
+    await render(<OrderResultCard order={orderWithoutFee} onContinue={jest.fn()} />);
+    expect(screen.getByText("Calculating...")).toBeTruthy();
+    expect(screen.queryByText("$0")).toBeNull();
   });
 
   it("renders a Continue to payment button", async () => {

@@ -10,23 +10,33 @@ type Props = {
 };
 
 /**
- * Displays the result of a successfully created order (reference, status,
- * total) and a "Continue to payment" action. Purely presentational — no
- * navigation or Redux coupling, so it stays testable in isolation.
+ * Displays the result of a successfully created order (status, total) and a
+ * "Continue to payment" action. Purely presentational — no navigation or
+ * Redux coupling, so it stays testable in isolation.
  */
 export default function OrderResultCard({ order, onContinue }: Props) {
+  const fee = order.delivery.fee;
+  const productPriceInCents = order.totalInCents - (fee ?? 0);
+
   return (
     <View testID="order-result-card" style={styles.card}>
       <Text style={styles.title}>Order created</Text>
 
       <View style={styles.row}>
-        <Text style={styles.label}>Reference</Text>
-        <Text style={styles.value}>{order.reference}</Text>
+        <Text style={styles.label}>Status</Text>
+        <Text style={styles.value}>{order.status}</Text>
       </View>
 
       <View style={styles.row}>
-        <Text style={styles.label}>Status</Text>
-        <Text style={styles.value}>{order.status}</Text>
+        <Text style={styles.label}>Product price</Text>
+        <Text style={styles.value}>{formatPrice(productPriceInCents)}</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Text style={styles.label}>Delivery fee</Text>
+        <Text style={styles.value}>
+          {fee === null ? "Calculating..." : formatPrice(fee)}
+        </Text>
       </View>
 
       <View style={styles.row}>

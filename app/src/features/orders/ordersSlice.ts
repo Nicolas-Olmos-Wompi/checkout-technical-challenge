@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import { createOrder as createOrderApi } from "../../api/orders";
 import type { CreateOrderRequest, PendingOrderResponse } from "../../api/order.types";
 import { ApiError } from "../../api/types";
+import type { DeliveryFormFields } from "../../utils/deliveryValidation";
 
 export type OrdersStatus = "idle" | "loading" | "succeeded" | "failed";
 
@@ -9,12 +10,14 @@ export type OrdersState = {
   order: PendingOrderResponse | null;
   status: OrdersStatus;
   error: string | null;
+  submittedDelivery: DeliveryFormFields | null;
 };
 
 const initialState: OrdersState = {
   order: null,
   status: "idle",
   error: null,
+  submittedDelivery: null,
 };
 
 function toErrorMessage(error: unknown): string {
@@ -42,6 +45,7 @@ const ordersSlice = createSlice({
       state.order = null;
       state.status = "idle";
       state.error = null;
+      state.submittedDelivery = null;
     },
   },
   extraReducers: (builder) => {
@@ -52,10 +56,19 @@ const ordersSlice = createSlice({
       })
       .addCase(
         createOrder.fulfilled,
-        (state, action: PayloadAction<PendingOrderResponse>) => {
+        (state, action: PayloadAction<PendingOrderResponse, string, { arg: CreateOrderRequest }>) => {
           state.status = "succeeded";
           state.order = action.payload;
           state.error = null;
+          const { delivery } = action.meta.arg;
+          state.submittedDelivery = {
+            personName: delivery.personName,
+            address: delivery.address,
+            city: delivery.city,
+            region: delivery.region,
+            postalCode: delivery.postalCode,
+            phoneNumber: delivery.phoneNumber,
+          };
         },
       )
       .addCase(createOrder.rejected, (state, action) => {

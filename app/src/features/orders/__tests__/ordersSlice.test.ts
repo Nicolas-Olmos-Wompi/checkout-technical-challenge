@@ -57,6 +57,7 @@ describe("ordersSlice reducer", () => {
       order: null,
       status: "idle",
       error: null,
+      submittedDelivery: null,
     });
   });
 
@@ -70,11 +71,33 @@ describe("ordersSlice reducer", () => {
 
     it("stores the order and sets status to succeeded on fulfillment", () => {
       const store = createTestStore();
-      store.dispatch({ type: createOrder.fulfilled.type, payload: order });
+      store.dispatch({
+        type: createOrder.fulfilled.type,
+        payload: order,
+        meta: { arg: request },
+      });
       const state = store.getState().orders;
       expect(state.status).toBe("succeeded");
       expect(state.order).toEqual(order);
       expect(state.error).toBeNull();
+    });
+
+    it("stores the original request's delivery fields as submittedDelivery on fulfillment", () => {
+      const store = createTestStore();
+      store.dispatch({
+        type: createOrder.fulfilled.type,
+        payload: order,
+        meta: { arg: request },
+      });
+      const state = store.getState().orders;
+      expect(state.submittedDelivery).toEqual({
+        personName: request.delivery.personName,
+        address: request.delivery.address,
+        city: request.delivery.city,
+        region: request.delivery.region,
+        postalCode: request.delivery.postalCode,
+        phoneNumber: request.delivery.phoneNumber,
+      });
     });
 
     it("sets an error message and status to failed on rejection", () => {
@@ -92,13 +115,29 @@ describe("ordersSlice reducer", () => {
   describe("resetOrder", () => {
     it("clears the order, status, and error back to initial state", () => {
       const store = createTestStore();
-      store.dispatch({ type: createOrder.fulfilled.type, payload: order });
+      store.dispatch({
+        type: createOrder.fulfilled.type,
+        payload: order,
+        meta: { arg: request },
+      });
       store.dispatch(resetOrder());
       expect(store.getState().orders).toEqual({
         order: null,
         status: "idle",
         error: null,
+        submittedDelivery: null,
       });
+    });
+
+    it("clears submittedDelivery back to null", () => {
+      const store = createTestStore();
+      store.dispatch({
+        type: createOrder.fulfilled.type,
+        payload: order,
+        meta: { arg: request },
+      });
+      store.dispatch(resetOrder());
+      expect(store.getState().orders.submittedDelivery).toBeNull();
     });
   });
 });
@@ -118,6 +157,14 @@ describe("ordersSlice thunk", () => {
     const state = store.getState().orders;
     expect(state.status).toBe("succeeded");
     expect(state.order).toEqual(order);
+    expect(state.submittedDelivery).toEqual({
+      personName: request.delivery.personName,
+      address: request.delivery.address,
+      city: request.delivery.city,
+      region: request.delivery.region,
+      postalCode: request.delivery.postalCode,
+      phoneNumber: request.delivery.phoneNumber,
+    });
   });
 
   it("stores the server error message on failure", async () => {

@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
+import type { NavigationContainerRef } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import { store } from "./src/store/store";
 import { useAppDispatch, useAppSelector } from "./src/store/hooks";
 import { restoreSession } from "./src/features/auth/authSlice";
 import RootNavigator from "./src/navigation/RootNavigator";
+import SessionExpiryListener from "./src/auth/SessionExpiryListener";
+import type { RootStackParamList } from "./src/navigation/types";
 
 // Keep the native splash screen visible until auth state has been read.
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -18,6 +21,7 @@ function AppContent() {
   const dispatch = useAppDispatch();
   const status = useAppSelector((state) => state.auth.status);
   const [hasHiddenSplash, setHasHiddenSplash] = useState(false);
+  const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   useEffect(() => {
     dispatch(restoreSession());
@@ -36,7 +40,8 @@ function AppContent() {
   }, [status, hideSplash]);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
+      <SessionExpiryListener navigationRef={navigationRef} />
       <RootNavigator />
     </NavigationContainer>
   );

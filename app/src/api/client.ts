@@ -1,4 +1,5 @@
 import { getToken } from "../auth/tokenStorage";
+import { notifySessionExpired } from "../auth/sessionExpiry";
 import { ApiError, HttpResponseEnvelope } from "./types";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
@@ -68,6 +69,9 @@ export async function apiRequest<TData>(
   }
 
   if (!response.ok) {
+    if (response.status === 401 && auth) {
+      notifySessionExpired();
+    }
     const message =
       envelope?.message ?? `Request failed with status ${response.status}`;
     throw new ApiError(message, response.status, envelope?.code);

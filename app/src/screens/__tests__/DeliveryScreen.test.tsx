@@ -1,7 +1,14 @@
 import React from "react";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
-import { act, render, screen, userEvent, waitFor } from "@testing-library/react-native";
+import {
+  act,
+  render,
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from "@testing-library/react-native";
 import DeliveryScreen from "../DeliveryScreen";
 import ordersReducer from "../../features/orders/ordersSlice";
 import * as ordersApi from "../../api/orders";
@@ -117,13 +124,16 @@ describe("DeliveryScreen", () => {
   });
 
   it("starts the quantity selector at 1", async () => {
+    const user = userEvent.setup();
     await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
     expect(screen.getByTestId("quantity-value").props.children).toBe(1);
   });
 
   it("increments the quantity when + is pressed", async () => {
     const user = userEvent.setup();
     await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
 
     await user.press(screen.getByTestId("quantity-increment"));
 
@@ -133,6 +143,7 @@ describe("DeliveryScreen", () => {
   it("decrements the quantity when - is pressed", async () => {
     const user = userEvent.setup();
     await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
 
     await user.press(screen.getByTestId("quantity-increment"));
     await user.press(screen.getByTestId("quantity-decrement"));
@@ -143,6 +154,7 @@ describe("DeliveryScreen", () => {
   it("does not decrement below 1", async () => {
     const user = userEvent.setup();
     await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
 
     await user.press(screen.getByTestId("quantity-decrement"));
 
@@ -152,6 +164,7 @@ describe("DeliveryScreen", () => {
   it("does not increment above product.stock", async () => {
     const user = userEvent.setup();
     await renderDeliveryScreen({ stock: 2 });
+    await user.press(screen.getByText("Order summary"));
 
     await user.press(screen.getByTestId("quantity-increment"));
     await user.press(screen.getByTestId("quantity-increment"));
@@ -162,6 +175,7 @@ describe("DeliveryScreen", () => {
   it("disables the increment button at max stock", async () => {
     const user = userEvent.setup();
     await renderDeliveryScreen({ stock: 1 });
+    await user.press(screen.getByText("Order summary"));
 
     expect(
       screen.getByTestId("quantity-increment").props.accessibilityState.disabled,
@@ -169,11 +183,93 @@ describe("DeliveryScreen", () => {
   });
 
   it("disables the decrement button at quantity 1", async () => {
+    const user = userEvent.setup();
     await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
 
     expect(
       screen.getByTestId("quantity-decrement").props.accessibilityState.disabled,
     ).toBe(true);
+  });
+
+  it("shows the subtotal reflecting product price times quantity on initial render", async () => {
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
+
+    // product.price 150000 * quantity 1 = 150000 -> $1.500
+    expect(screen.getByText("Subtotal (excl. delivery fee): $1.500")).toBeTruthy();
+  });
+
+  it("updates the subtotal when the quantity is incremented", async () => {
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
+
+    await user.press(screen.getByTestId("quantity-increment"));
+
+    // product.price 150000 * quantity 2 = 300000 -> $3.000
+    expect(screen.getByText("Subtotal (excl. delivery fee): $3.000")).toBeTruthy();
+  });
+
+  it("updates the subtotal when the quantity is decremented", async () => {
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
+
+    await user.press(screen.getByTestId("quantity-increment"));
+    await user.press(screen.getByTestId("quantity-increment"));
+    await user.press(screen.getByTestId("quantity-decrement"));
+
+    // product.price 150000 * quantity 2 = 300000 -> $3.000
+    expect(screen.getByText("Subtotal (excl. delivery fee): $3.000")).toBeTruthy();
+  });
+
+  it("renders the quantity stepper and subtotal inside the Backdrop back layer", async () => {
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
+
+    const backLayer = screen.getByTestId("backdrop-back-layer");
+
+    expect(within(backLayer).getByTestId("quantity-decrement")).toBeTruthy();
+    expect(within(backLayer).getByTestId("quantity-value")).toBeTruthy();
+    expect(within(backLayer).getByTestId("quantity-increment")).toBeTruthy();
+  });
+
+  it("renders the submit button inside the sticky footer, outside the Backdrop", async () => {
+    await renderDeliveryScreen();
+
+    const footer = screen.getByTestId("delivery-footer");
+
+    expect(within(footer).getByTestId("submit-button")).toBeTruthy();
+  });
+
+  it("does not render the quantity stepper inside the scrollable form content", async () => {
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+    await user.press(screen.getByText("Order summary"));
+
+    const formContent = screen.getByTestId("delivery-form-content");
+
+    expect(within(formContent).queryByTestId("quantity-increment")).toBeNull();
+  });
+
+  it("hides the quantity stepper and subtotal until Order summary is toggled", async () => {
+    await renderDeliveryScreen();
+
+    expect(screen.queryByTestId("quantity-increment")).toBeNull();
+    expect(
+      screen.queryByText("Subtotal (excl. delivery fee): $1.500"),
+    ).toBeNull();
+  });
+
+  it("renders the product name inside the scrollable form content", async () => {
+    await renderDeliveryScreen();
+
+    const formContent = screen.getByTestId("delivery-form-content");
+
+    expect(within(formContent).getByText(product.name)).toBeTruthy();
   });
 });
 
@@ -184,6 +280,7 @@ describe("DeliveryScreen submission", () => {
     await renderDeliveryScreen();
 
     await fillValidForm(user);
+    await user.press(screen.getByText("Order summary"));
     await user.press(screen.getByTestId("quantity-increment"));
     await user.press(screen.getByText("Submit"));
 
@@ -277,6 +374,94 @@ describe("DeliveryScreen submission", () => {
       expect(screen.getByText("Insufficient stock.")).toBeTruthy();
     });
   });
+
+  it("disables the submit button while status is succeeded, preventing duplicate orders", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("submit-button").props.accessibilityState.disabled).toBe(
+        true,
+      );
+    });
+  });
+
+  it("re-enables the submit button after dismissing the modal and editing the form", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+    await waitFor(() => screen.getByTestId("order-result-card"));
+
+    await user.type(screen.getByLabelText("Full name"), " Jr.");
+    const backdrop = screen.queryByTestId("receipt-backdrop");
+    if (backdrop) {
+      await user.press(backdrop);
+    }
+
+    expect(
+      screen.getByTestId("submit-button").props.accessibilityState.disabled,
+    ).toBe(false);
+  });
+
+  it("re-enables the submit button when the quantity is incremented after a successful submission", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+    await waitFor(() => screen.getByTestId("order-result-card"));
+
+    await user.press(screen.getByText("Order summary"));
+    await user.press(screen.getByTestId("quantity-increment"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("submit-button").props.accessibilityState.disabled,
+      ).toBe(false);
+    });
+  });
+
+  it("re-enables the submit button when a text field is edited after a successful submission, without dismissing the modal", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+    await waitFor(() => screen.getByTestId("order-result-card"));
+
+    await user.type(screen.getByLabelText("Full name"), " Jr.");
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("submit-button").props.accessibilityState.disabled,
+      ).toBe(false);
+    });
+  });
+
+  it("keeps the submit button disabled and the receipt intact when nothing is edited after success", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    const { store } = await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+    await waitFor(() => screen.getByTestId("order-result-card"));
+
+    expect(
+      screen.getByTestId("submit-button").props.accessibilityState.disabled,
+    ).toBe(true);
+    expect(screen.getByTestId("order-result-card")).toBeTruthy();
+    expect(store.getState().orders.order).not.toBeNull();
+  });
 });
 
 describe("DeliveryScreen order result", () => {
@@ -290,8 +475,73 @@ describe("DeliveryScreen order result", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("order-result-card")).toBeTruthy();
-      expect(screen.getByText("REF-1")).toBeTruthy();
+      expect(screen.getByText("PENDING")).toBeTruthy();
     });
+  });
+
+  it("shows the receipt modal as visible after a successful submission", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("receipt-backdrop")).toBeTruthy();
+    });
+  });
+
+  it("does not show the receipt modal when status is not succeeded", async () => {
+    await renderDeliveryScreen();
+
+    expect(screen.queryByTestId("receipt-backdrop")).toBeNull();
+  });
+
+  it("hides the modal when the backdrop is pressed", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+    await waitFor(() => screen.getByTestId("order-result-card"));
+
+    await user.press(screen.getByTestId("receipt-backdrop"));
+
+    expect(screen.queryByTestId("receipt-backdrop")).toBeNull();
+  });
+
+  it("keeps the order in the store when the backdrop is dismissed without editing the form", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    const { store } = await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+    await waitFor(() => screen.getByTestId("order-result-card"));
+
+    await user.press(screen.getByTestId("receipt-backdrop"));
+
+    expect(store.getState().orders.order).not.toBeNull();
+  });
+
+  it("resets the order in the store when the backdrop is dismissed after editing the form", async () => {
+    mockedOrdersApi.createOrder.mockResolvedValue(orderResponse);
+    const user = userEvent.setup();
+    const { store } = await renderDeliveryScreen();
+
+    await fillValidForm(user);
+    await user.press(screen.getByText("Submit"));
+    await waitFor(() => screen.getByTestId("order-result-card"));
+
+    await user.type(screen.getByLabelText("Full name"), " Jr.");
+    const backdrop = screen.queryByTestId("receipt-backdrop");
+    if (backdrop) {
+      await user.press(backdrop);
+    }
+
+    expect(store.getState().orders.order).toBeNull();
   });
 
   it("navigates to Card when Continue to payment is pressed", async () => {

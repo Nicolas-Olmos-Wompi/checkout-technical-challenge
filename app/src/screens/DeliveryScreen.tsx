@@ -1,28 +1,22 @@
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import TextField from "../components/TextField";
 import PrimaryButton from "../components/PrimaryButton";
 import OrderResultCard from "../components/OrderResultCard";
+import Backdrop from "../components/Backdrop";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { createOrder, resetOrder } from "../features/orders/ordersSlice";
 import {
   validateDeliveryForm,
   type DeliveryFormErrors,
+  type DeliveryFormFields,
 } from "../utils/deliveryValidation";
+import { formatPrice } from "../utils/formatPrice";
 import { colors, radius, spacing, fontSize } from "../theme";
 import type { RootStackParamList } from "../navigation/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Delivery">;
-
-export type DeliveryFormFields = {
-  personName: string;
-  address: string;
-  city: string;
-  region: string;
-  postalCode: string;
-  phoneNumber: string;
-};
 
 const initialFormFields: DeliveryFormFields = {
   personName: "",
@@ -33,13 +27,31 @@ const initialFormFields: DeliveryFormFields = {
   phoneNumber: "",
 };
 
+function areDeliveryFieldsEqual(
+  a: DeliveryFormFields,
+  b: DeliveryFormFields,
+): boolean {
+  return (
+    a.personName === b.personName &&
+    a.address === b.address &&
+    a.city === b.city &&
+    a.region === b.region &&
+    a.postalCode === b.postalCode &&
+    a.phoneNumber === b.phoneNumber
+  );
+}
+
 export default function DeliveryScreen({ navigation, route }: Props) {
   const { product } = route.params;
   const dispatch = useAppDispatch();
-  const { order, status, error } = useAppSelector((state) => state.orders);
+  const { order, status, error, submittedDelivery } = useAppSelector(
+    (state) => state.orders,
+  );
   const [form, setForm] = useState<DeliveryFormFields>(initialFormFields);
   const [quantity, setQuantity] = useState(1);
   const [fieldErrors, setFieldErrors] = useState<DeliveryFormErrors>({});
+  const [isModalDismissed, setIsModalDismissed] = useState(false);
+  const [submittedQuantity, setSubmittedQuantity] = useState<number | null>(null);
 
   // A stored order from a previous purchase (different product) is stale —
   // reset it so this screen doesn't show someone else's result. The order
@@ -50,6 +62,27 @@ export default function DeliveryScreen({ navigation, route }: Props) {
       dispatch(resetOrder());
     }
   }, [order, product.id, dispatch]);
+
+  // If the user edits the quantity or any delivery field after a successful
+  // submission, the previous receipt is stale — automatically reset the
+  // order so Submit re-enables and the outdated receipt is invalidated.
+  const hasChangedSinceSubmission =
+    status === "succeeded" &&
+    (quantity !== submittedQuantity ||
+      submittedDelivery === null ||
+      !areDeliveryFieldsEqual(form, submittedDelivery));
+
+  useEffect(() => {
+    if (hasChangedSinceSubmission) {
+      dispatch(resetOrder());
+    }
+  }, [hasChangedSinceSubmission, dispatch]);
+
+  const isReceiptVisible =
+    !isModalDismissed &&
+    status === "succeeded" &&
+    order !== null &&
+    order.productId === product.id;
 
   function updateField(field: keyof DeliveryFormFields, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -70,6 +103,8 @@ export default function DeliveryScreen({ navigation, route }: Props) {
       return;
     }
 
+    setIsModalDismissed(false);
+    setSubmittedQuantity(quantity);
     dispatch(
       createOrder({
         productId: product.id,
@@ -87,119 +122,177 @@ export default function DeliveryScreen({ navigation, route }: Props) {
     );
   }
 
+  function handleDismissReceipt() {
+    setIsModalDismissed(true);
+    const formUnchangedSinceSubmission =
+      submittedDelivery !== null && areDeliveryFieldsEqual(form, submittedDelivery);
+    if (!formUnchangedSinceSubmission) {
+      dispatch(resetOrder());
+    }
+  }
+
   const isIncrementDisabled = quantity >= product.stock;
   const isDecrementDisabled = quantity <= 1;
   const isSubmitting = status === "loading";
+  const isSubmitDisabled = status === "loading" || status === "succeeded";
+  const subtotalInCents = product.price * quantity;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Delivery details</Text>
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View testID="delivery-form-content">
+          <Text style={styles.title}>Delivery details</Text>
+          <Text style={styles.productSubtitle}>{product.name}</Text>
 
-      {status === "failed" && error ? (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorBannerText}>{error}</Text>
-        </View>
-      ) : null}
+          {status === "failed" && error ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{error}</Text>
+            </View>
+          ) : null}
 
-      <View style={styles.quantityRow}>
-        <Text style={styles.quantityLabel}>Quantity</Text>
-        <View style={styles.stepper}>
-          <PrimaryButton
-            title="-"
-            variant="outline"
-            disabled={isDecrementDisabled}
-            onPress={decrementQuantity}
-            style={styles.stepperButton}
-            testID="quantity-decrement"
+          <TextField
+            label="Full name"
+            value={form.personName}
+            onChangeText={(value) => updateField("personName", value)}
+            placeholder="Full name"
+            error={fieldErrors.personName}
           />
-          <Text style={styles.quantityValue} testID="quantity-value">
-            {quantity}
-          </Text>
-          <PrimaryButton
-            title="+"
-            variant="outline"
-            disabled={isIncrementDisabled}
-            onPress={incrementQuantity}
-            style={styles.stepperButton}
-            testID="quantity-increment"
+          <TextField
+            label="Address"
+            value={form.address}
+            onChangeText={(value) => updateField("address", value)}
+            placeholder="Address"
+            error={fieldErrors.address}
           />
+          <TextField
+            label="City"
+            value={form.city}
+            onChangeText={(value) => updateField("city", value)}
+            placeholder="City"
+            error={fieldErrors.city}
+          />
+          <TextField
+            label="Region"
+            value={form.region}
+            onChangeText={(value) => updateField("region", value)}
+            placeholder="Region"
+            error={fieldErrors.region}
+          />
+          <TextField
+            label="Postal code"
+            value={form.postalCode}
+            onChangeText={(value) => updateField("postalCode", value)}
+            placeholder="Postal code"
+            keyboardType="number-pad"
+            error={fieldErrors.postalCode}
+          />
+          <TextField
+            label="Phone number"
+            value={form.phoneNumber}
+            onChangeText={(value) => updateField("phoneNumber", value)}
+            placeholder="Phone number"
+            keyboardType="phone-pad"
+            error={fieldErrors.phoneNumber}
+          />
+
+          <View style={styles.countryContainer}>
+            <Text style={styles.countryLabel}>Country</Text>
+            <View style={styles.countryValue}>
+              <Text style={styles.countryText}>Colombia</Text>
+            </View>
+          </View>
         </View>
+      </ScrollView>
+
+      <View style={styles.backdropWrapper}>
+        <Backdrop
+          toggleLabel="Order summary"
+          backLayer={
+            <View style={styles.orderSummary}>
+              <View style={styles.quantityRow}>
+                <Text style={styles.quantityLabel}>Quantity</Text>
+                <View style={styles.stepper}>
+                  <PrimaryButton
+                    title="-"
+                    variant="outline"
+                    disabled={isDecrementDisabled}
+                    onPress={decrementQuantity}
+                    style={styles.stepperButton}
+                    testID="quantity-decrement"
+                  />
+                  <Text style={styles.quantityValue} testID="quantity-value">
+                    {quantity}
+                  </Text>
+                  <PrimaryButton
+                    title="+"
+                    variant="outline"
+                    disabled={isIncrementDisabled}
+                    onPress={incrementQuantity}
+                    style={styles.stepperButton}
+                    testID="quantity-increment"
+                  />
+                </View>
+              </View>
+
+              <Text style={styles.subtotalText}>
+                Subtotal (excl. delivery fee): {formatPrice(subtotalInCents)}
+              </Text>
+            </View>
+          }
+          frontLayer={null}
+          style={styles.orderSummaryBackdrop}
+        />
       </View>
 
-      <TextField
-        label="Full name"
-        value={form.personName}
-        onChangeText={(value) => updateField("personName", value)}
-        placeholder="Full name"
-        error={fieldErrors.personName}
-      />
-      <TextField
-        label="Address"
-        value={form.address}
-        onChangeText={(value) => updateField("address", value)}
-        placeholder="Address"
-        error={fieldErrors.address}
-      />
-      <TextField
-        label="City"
-        value={form.city}
-        onChangeText={(value) => updateField("city", value)}
-        placeholder="City"
-        error={fieldErrors.city}
-      />
-      <TextField
-        label="Region"
-        value={form.region}
-        onChangeText={(value) => updateField("region", value)}
-        placeholder="Region"
-        error={fieldErrors.region}
-      />
-      <TextField
-        label="Postal code"
-        value={form.postalCode}
-        onChangeText={(value) => updateField("postalCode", value)}
-        placeholder="Postal code"
-        keyboardType="number-pad"
-        error={fieldErrors.postalCode}
-      />
-      <TextField
-        label="Phone number"
-        value={form.phoneNumber}
-        onChangeText={(value) => updateField("phoneNumber", value)}
-        placeholder="Phone number"
-        keyboardType="phone-pad"
-        error={fieldErrors.phoneNumber}
-      />
-
-      <View style={styles.countryContainer}>
-        <Text style={styles.countryLabel}>Country</Text>
-        <View style={styles.countryValue}>
-          <Text style={styles.countryText}>Colombia</Text>
-        </View>
+      <View style={styles.footer} testID="delivery-footer">
+        <PrimaryButton
+          title="Submit"
+          onPress={handleSubmit}
+          loading={isSubmitting}
+          disabled={isSubmitDisabled}
+          testID="submit-button"
+          style={styles.submitButton}
+        />
       </View>
 
-      <PrimaryButton
-        title="Submit"
-        onPress={handleSubmit}
-        loading={isSubmitting}
-        disabled={isSubmitting}
-        testID="submit-button"
-        style={styles.submitButton}
-      />
-
-      {status === "succeeded" && order && order.productId === product.id ? (
-        <View style={styles.resultContainer}>
-          <OrderResultCard
-            order={order}
-            onContinue={() => navigation.navigate("Card")}
-          />
-        </View>
-      ) : null}
-    </ScrollView>
+      <Modal
+        visible={isReceiptVisible}
+        animationType="none"
+        transparent
+        testID="receipt-modal"
+        onRequestClose={handleDismissReceipt}
+      >
+        <Pressable
+          testID="receipt-backdrop"
+          style={styles.backdrop}
+          onPress={handleDismissReceipt}
+        >
+          <Pressable style={styles.modalContent} onPress={() => {}}>
+            {order ? (
+              <OrderResultCard
+                order={order}
+                onContinue={() => navigation.navigate("Card")}
+              />
+            ) : null}
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  backdropWrapper: {
+    paddingHorizontal: spacing.lg,
+  },
+  orderSummaryBackdrop: {
+    flex: 0,
+  },
+  orderSummary: {},
   container: {
     flexGrow: 1,
     backgroundColor: colors.background,
@@ -209,6 +302,12 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xl,
     fontWeight: "800",
     color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  productSubtitle: {
+    fontSize: fontSize.md,
+    fontWeight: "600",
+    color: colors.textMuted,
     marginBottom: spacing.lg,
   },
   errorBanner: {
@@ -223,7 +322,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   quantityRow: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   quantityLabel: {
     fontSize: fontSize.sm,
@@ -234,6 +333,7 @@ const styles = StyleSheet.create({
   stepper: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: spacing.md,
   },
   stepperButton: {
@@ -271,7 +371,26 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: spacing.sm,
   },
-  resultContainer: {
-    marginTop: spacing.lg,
+  footer: {
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    padding: spacing.lg,
+  },
+  subtotalText: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    fontWeight: "600",
+    marginBottom: spacing.sm,
+    textAlign: "center",
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    padding: spacing.lg,
+  },
+  modalContent: {
+    width: "100%",
   },
 });
