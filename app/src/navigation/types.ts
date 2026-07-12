@@ -6,4 +6,6 @@ export type RootStackParamList = {
   Signup: undefined;
   Products: undefined;
   ProductDetail: { product: Product };
+  Delivery: { product: Product };
+  Card: undefined;
 };

@@ -33,6 +33,12 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
       <Text style={styles.description}>{product.description}</Text>
 
       <PrimaryButton
+        title="Buy"
+        onPress={() => navigation.navigate("Delivery", { product })}
+        style={styles.buyButton}
+      />
+
+      <PrimaryButton
         title="Back"
         variant="outline"
         onPress={() => navigation.goBack()}
@@ -97,6 +103,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   backButton: {
+    marginBottom: spacing.sm,
+  },
+  buyButton: {
     marginBottom: spacing.sm,
   },
 });

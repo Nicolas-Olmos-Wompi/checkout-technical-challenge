@@ -14,6 +14,7 @@ import TextField from "../components/TextField";
 import ProductCard from "../components/ProductCard";
 import Pagination from "../components/Pagination";
 import FiltersPanel, { type PriceFilters } from "../components/FiltersPanel";
+import Backdrop from "../components/Backdrop";
 import Skeleton from "../components/Skeleton";
 import { colors, spacing, fontSize } from "../theme";
 import type { Product } from "../api/product.types";
@@ -85,69 +86,77 @@ export default function ProductsScreen({ navigation }: Props) {
             style={styles.searchButton}
           />
         </View>
-
-        <FiltersPanel
-          onApply={handleApplyPriceFilters}
-          onClear={handleClearFilters}
-          initialMinPrice={filters.minPrice}
-          initialMaxPrice={filters.maxPrice}
-        />
       </View>
 
-      {isError ? (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorBannerText}>{error}</Text>
-          <PrimaryButton
-            title="Retry"
-            variant="outline"
-            onPress={() => dispatch(fetchProducts())}
-            style={styles.retryButton}
+      <Backdrop
+        toggleLabel="Filters"
+        backLayer={
+          <FiltersPanel
+            onApply={handleApplyPriceFilters}
+            onClear={handleClearFilters}
+            initialMinPrice={filters.minPrice}
+            initialMaxPrice={filters.maxPrice}
           />
-        </View>
-      ) : isLoading ? (
-        <View style={styles.skeletonGrid} testID="products-skeleton-grid">
-          {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
-            <View key={index} style={styles.skeletonCard}>
-              <Skeleton
-                testID={`skeleton-image-${index}`}
-                width="100%"
-                height={100}
-                style={styles.skeletonSpacing}
+        }
+        frontLayer={
+          <>
+            {isError ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{error}</Text>
+                <PrimaryButton
+                  title="Retry"
+                  variant="outline"
+                  onPress={() => dispatch(fetchProducts())}
+                  style={styles.retryButton}
+                />
+              </View>
+            ) : isLoading ? (
+              <View style={styles.skeletonGrid} testID="products-skeleton-grid">
+                {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+                  <View key={index} style={styles.skeletonCard}>
+                    <Skeleton
+                      testID={`skeleton-image-${index}`}
+                      width="100%"
+                      height={100}
+                      style={styles.skeletonSpacing}
+                    />
+                    <Skeleton
+                      testID={`skeleton-line-${index}`}
+                      width="80%"
+                      height={14}
+                      style={styles.skeletonSpacing}
+                    />
+                    <Skeleton testID={`skeleton-line2-${index}`} width="50%" height={14} />
+                  </View>
+                ))}
+              </View>
+            ) : items.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>No products found.</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={items}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                renderItem={({ item }) => (
+                  <ProductCard product={item} onPress={handleProductPress} />
+                )}
+                contentContainerStyle={styles.list}
               />
-              <Skeleton
-                testID={`skeleton-line-${index}`}
-                width="80%"
-                height={14}
-                style={styles.skeletonSpacing}
-              />
-              <Skeleton testID={`skeleton-line2-${index}`} width="50%" height={14} />
-            </View>
-          ))}
-        </View>
-      ) : items.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>No products found.</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={items}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          renderItem={({ item }) => (
-            <ProductCard product={item} onPress={handleProductPress} />
-          )}
-          contentContainerStyle={styles.list}
-        />
-      )}
+            )}
 
-      {!isError && totalPages > 0 ? (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onPrev={(newPage) => dispatch(setPage(newPage))}
-          onNext={(newPage) => dispatch(setPage(newPage))}
-        />
-      ) : null}
+            {!isError && totalPages > 0 ? (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPrev={(newPage) => dispatch(setPage(newPage))}
+                onNext={(newPage) => dispatch(setPage(newPage))}
+              />
+            ) : null}
+          </>
+        }
+      />
 
       <PrimaryButton title="Log out" variant="outline" onPress={handleLogout} />
     </View>

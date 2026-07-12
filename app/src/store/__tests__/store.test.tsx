@@ -37,6 +37,12 @@ describe("store", () => {
       status: "idle",
       error: null,
     });
+    expect(state.orders).toEqual({
+      order: null,
+      status: "idle",
+      error: null,
+      submittedDelivery: null,
+    });
   });
 
   it("makes state available to descendants via Provider", async () => {
