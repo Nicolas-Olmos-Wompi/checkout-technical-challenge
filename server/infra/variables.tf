@@ -63,3 +63,56 @@ variable "db_port" {
   type        = number
   default     = 5432
 }
+
+variable "wompi_base_url" {
+  description = "Base URL for the WOMPI payment gateway API"
+  type        = string
+  default     = "https://api-sandbox.co.uat.wompi.dev/v1"
+}
+
+# =============================================================================
+# Database Configuration
+# =============================================================================
+
+variable "db_name" {
+  description = "Name of the PostgreSQL database"
+  type        = string
+  default     = "checkout"
+}
+
+variable "db_username" {
+  description = "Master username for RDS PostgreSQL"
+  type        = string
+  default     = "dbadmin"
+}
+
+variable "app_db_username" {
+  description = "Application runtime database username (uses IAM authentication)"
+  type        = string
+  default     = "app_user"
+}
+
+# =============================================================================
+# Application Secrets (sensitive - set in terraform.tfvars)
+# =============================================================================
+
+variable "wompi_public_key" {
+  description = "WOMPI public key for API authentication"
+  type        = string
+  sensitive   = true
+  default     = "placeholder-change-me"
+}
+
+variable "wompi_private_key" {
+  description = "WOMPI private key for API authentication"
+  type        = string
+  sensitive   = true
+  default     = "placeholder-change-me"
+}
+
+variable "wompi_integrity_secret" {
+  description = "WOMPI integrity secret for signature validation"
+  type        = string
+  sensitive   = true
+  default     = "placeholder-change-me"
+}
