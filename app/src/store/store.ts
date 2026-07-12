@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
 import loginFormReducer from "../features/auth/loginFormSlice";
 import signupFormReducer from "../features/auth/signupFormSlice";
+import productsReducer from "../features/products/productsSlice";
 
 export function createStore() {
   return configureStore({
@@ -9,6 +10,7 @@ export function createStore() {
       auth: authReducer,
       loginForm: loginFormReducer,
       signupForm: signupFormReducer,
+      products: productsReducer,
     },
   });
 }

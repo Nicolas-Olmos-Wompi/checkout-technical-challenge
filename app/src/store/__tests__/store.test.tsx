@@ -27,6 +27,16 @@ describe("store", () => {
       confirmPassword: "",
       fieldErrors: {},
     });
+    expect(state.products).toEqual({
+      items: [],
+      page: 1,
+      pageSize: 6,
+      total: 0,
+      totalPages: 0,
+      filters: { name: "", minPrice: "", maxPrice: "" },
+      status: "idle",
+      error: null,
+    });
   });
 
   it("makes state available to descendants via Provider", async () => {
