@@ -4,6 +4,7 @@ import { HttpModule } from "@nestjs/axios";
 import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { IHealthRepository } from "domain/src/interface/health.repository";
+import { ILogger } from "domain/src/interface/logger.interface";
 import { GetHealthUseCase } from "domain/src/usecase/get-health.usecase";
 import { IProductRepository } from "domain/src/interface/product.repository";
 import { IUserRepository } from "domain/src/interface/user.repository";
@@ -22,6 +23,7 @@ import { LoginUseCase } from "../domain/src/usecase/login.usecase";
 import { CreateOrderUseCase } from "../domain/src/usecase/create-order.usecase";
 import { PayOrderUseCase } from "../domain/src/usecase/pay-order.usecase";
 import { TransactionStatusPoller } from "../domain/src/usecase/transaction-status-poller";
+import { LoggerService } from "./common/logger/logger.service";
 import { HealthController } from "./adapter/in/http/health.controller";
 import { ProductController } from "./adapter/in/http/product.controller";
 import { AuthController } from "./adapter/in/http/auth.controller";
@@ -83,7 +85,8 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
     {
       provide: "GetHealthUseCase",
       useFactory: (healthRepository: IHealthRepository) => {
-        return new GetHealthUseCase(healthRepository);
+        const logger: ILogger = new LoggerService("GetHealthUseCase");
+        return new GetHealthUseCase(healthRepository, logger);
       },
       inject: ["TypeOrmHealthRepository"],
     },
@@ -95,7 +98,8 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
     {
       provide: "GetProductsUseCase",
       useFactory: (productRepository: IProductRepository) => {
-        return new GetProductsUseCase(productRepository);
+        const logger: ILogger = new LoggerService("GetProductsUseCase");
+        return new GetProductsUseCase(productRepository, logger);
       },
       inject: ["ProductRepository"],
     },
@@ -121,7 +125,13 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
         passwordHasher: IPasswordHasher,
         tokenService: ITokenGenerator,
       ) => {
-        return new SignupUseCase(userRepository, passwordHasher, tokenService);
+        const logger: ILogger = new LoggerService("SignupUseCase");
+        return new SignupUseCase(
+          userRepository,
+          passwordHasher,
+          tokenService,
+          logger,
+        );
       },
       inject: ["UserRepository", "PasswordHasher", "TokenGenerator"],
     },
@@ -132,7 +142,13 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
         passwordHasher: IPasswordHasher,
         tokenService: ITokenGenerator,
       ) => {
-        return new LoginUseCase(userRepository, passwordHasher, tokenService);
+        const logger: ILogger = new LoggerService("LoginUseCase");
+        return new LoginUseCase(
+          userRepository,
+          passwordHasher,
+          tokenService,
+          logger,
+        );
       },
       inject: ["UserRepository", "PasswordHasher", "TokenGenerator"],
     },
@@ -177,6 +193,7 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
     {
       provide: "TransactionStatusPoller",
       useFactory: (configService: ConfigService) => {
+        const logger: ILogger = new LoggerService("TransactionStatusPoller");
         const maxWaitMs =
           configService.get<number>("WOMPI_MAX_POLL_WAIT_MS") ?? 15000;
         const initialIntervalMs =
@@ -184,6 +201,7 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
         return new TransactionStatusPoller(
           (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
           { maxWaitMs, initialIntervalMs },
+          logger,
         );
       },
       inject: [ConfigService],
@@ -197,12 +215,14 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
         transactionManager: ITransactionManager,
         paymentGateway: IPaymentGateway,
       ) => {
+        const logger: ILogger = new LoggerService("CreateOrderUseCase");
         return new CreateOrderUseCase(
           productRepository,
           orderRepository,
           deliveryRepository,
           transactionManager,
           paymentGateway,
+          logger,
         );
       },
       inject: [
@@ -223,6 +243,7 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
         transactionGateway: ITransactionGateway,
         poller: TransactionStatusPoller,
       ) => {
+        const logger: ILogger = new LoggerService("PayOrderUseCase");
         return new PayOrderUseCase(
           orderRepository,
           userRepository,
@@ -230,6 +251,7 @@ import { HandlerGetServerHealthStatus } from "./handler/get-server-health-status
           signatureGenerator,
           transactionGateway,
           poller,
+          logger,
         );
       },
       inject: [

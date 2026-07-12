@@ -1,14 +1,17 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { IHealthRepository } from "../interface/health.repository";
+import { ILogger } from "../interface/logger.interface";
 import { GetHealthUseCase } from "./get-health.usecase";
 
 describe("GetHealthUseCase", () => {
   let getHealthUseCase: GetHealthUseCase;
   let healthRepository: MockProxy<IHealthRepository>;
+  let logger: MockProxy<ILogger>;
 
   beforeEach(() => {
     healthRepository = mock<IHealthRepository>();
-    getHealthUseCase = new GetHealthUseCase(healthRepository);
+    logger = mock<ILogger>();
+    getHealthUseCase = new GetHealthUseCase(healthRepository, logger);
   });
 
   afterEach(() => {

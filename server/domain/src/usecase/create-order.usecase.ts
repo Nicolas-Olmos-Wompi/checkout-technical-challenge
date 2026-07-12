@@ -1,3 +1,4 @@
+import { ILogger } from "../interface/logger.interface";
 import { IProductRepository } from "../interface/product.repository";
 import { IOrderRepository } from "../interface/order.repository";
 import { IDeliveryRepository } from "../interface/delivery.repository";
@@ -25,23 +26,41 @@ export class CreateOrderUseCase {
     private readonly deliveryRepository: IDeliveryRepository,
     private readonly transactionManager: ITransactionManager,
     private readonly paymentGateway: IPaymentGateway,
+    private readonly logger: ILogger,
   ) {}
 
   public async apply(command: CreateOrderCommand): Promise<CreateOrderResult> {
     const { userId, productId, quantity } = command;
 
+    this.logger.log("Creating order", { userId, productId, quantity });
+
     const product = await this.productRepository.findById(productId);
 
     if (!product) {
+      this.logger.warn("Order creation failed: product not found", {
+        productId,
+      });
       throw new ProductNotFoundError(productId);
     }
 
     if (product.stock < quantity) {
+      this.logger.warn("Order creation failed: insufficient stock", {
+        productId,
+        requested: quantity,
+        available: product.stock,
+      });
       throw new InsufficientStockError(productId, quantity, product.stock);
     }
 
     const deliveryFee = this.calculateDeliveryFee();
     const totalInCents = product.price * quantity + deliveryFee;
+
+    this.logger.debug("Order pricing calculated", {
+      productPrice: product.price,
+      quantity,
+      deliveryFee,
+      totalInCents,
+    });
 
     const acceptance = await this.paymentGateway.getAcceptanceTokens();
 
@@ -56,6 +75,11 @@ export class CreateOrderUseCase {
           deliveryFee,
         }),
     );
+
+    this.logger.log("Order created successfully", {
+      orderId: order.id,
+      totalInCents,
+    });
 
     return { order, delivery, acceptance };
   }

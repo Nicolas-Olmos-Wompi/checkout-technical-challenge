@@ -13,6 +13,7 @@ import {
   InsufficientStockError,
   ProductNotFoundError,
 } from "../../domain/src/model/order.errors";
+import { LoggerService } from "../common/logger/logger.service";
 import {
   CreateOrderRequest,
   PendingOrderResponse,
@@ -20,6 +21,8 @@ import {
 
 @Injectable()
 export class HandlerCreateOrder {
+  private readonly logger = new LoggerService("HandlerCreateOrder");
+
   constructor(
     @Inject("CreateOrderUseCase")
     private readonly createOrderUC: CreateOrderUseCase,
@@ -29,10 +32,22 @@ export class HandlerCreateOrder {
     userId: string,
     request: CreateOrderRequest,
   ): Promise<HTTPResponse> {
+    this.logger.log("POST /orders", {
+      userId,
+      productId: request.productId,
+      quantity: request.quantity,
+    });
+
     try {
       const command = OrderMapper.toCreateCommand(userId, request);
       const result = await this.createOrderUC.apply(command);
       const response: PendingOrderResponse = OrderMapper.toDTO(result);
+
+      this.logger.log("Create order handler completed", {
+        userId,
+        orderId: result.order.id,
+      });
+
       return new HTTPResponse(
         HttpStatus.CREATED,
         SUCCESS_STATES_MESSAGES.Success.code,
@@ -41,11 +56,21 @@ export class HandlerCreateOrder {
       );
     } catch (error) {
       if (error instanceof ProductNotFoundError) {
+        this.logger.warn("Create order: product not found", {
+          userId,
+          productId: request.productId,
+        });
         throw new NotFoundException(error.message);
       }
       if (error instanceof InsufficientStockError) {
+        this.logger.warn("Create order: insufficient stock", {
+          userId,
+          productId: request.productId,
+          quantity: request.quantity,
+        });
         throw new ConflictException(error.message);
       }
+      this.logger.error(error, { userId });
       throw error;
     }
   }

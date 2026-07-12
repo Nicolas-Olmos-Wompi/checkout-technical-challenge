@@ -1,3 +1,4 @@
+import { ILogger } from "../interface/logger.interface";
 import {
   PollOutcome,
   TransactionResult,
@@ -21,6 +22,7 @@ export class TransactionStatusPoller {
   constructor(
     private readonly sleep: (ms: number) => Promise<void>,
     private readonly config: TransactionStatusPollerConfig,
+    private readonly logger?: ILogger,
   ) {}
 
   public async pollUntilFinal(
@@ -29,12 +31,24 @@ export class TransactionStatusPoller {
     const backoffFactor = this.config.backoffFactor ?? 2;
     let elapsedMs = 0;
     let interval = this.config.initialIntervalMs;
+    let attempt = 0;
 
     let result = await getStatus();
+    attempt++;
+
+    this.logger?.debug("Polling transaction status", {
+      attempt,
+      status: result.status,
+    });
 
     while (!this.isFinal(result.status)) {
       const remaining = this.config.maxWaitMs - elapsedMs;
       if (remaining <= 0) {
+        this.logger?.warn("Transaction polling timed out", {
+          elapsedMs,
+          lastStatus: result.status,
+          attempts: attempt,
+        });
         return { result, timedOut: true };
       }
 
@@ -44,7 +58,20 @@ export class TransactionStatusPoller {
       interval *= backoffFactor;
 
       result = await getStatus();
+      attempt++;
+
+      this.logger?.debug("Poll attempt", {
+        attempt,
+        status: result.status,
+        elapsedMs,
+      });
     }
+
+    this.logger?.log("Transaction reached final status", {
+      status: result.status,
+      attempts: attempt,
+      elapsedMs,
+    });
 
     return { result, timedOut: false };
   }

@@ -4,6 +4,7 @@ import { IOrderRepository } from "../interface/order.repository";
 import { IDeliveryRepository } from "../interface/delivery.repository";
 import { ITransactionManager } from "../interface/transaction-manager";
 import { IPaymentGateway } from "../interface/payment-gateway";
+import { ILogger } from "../interface/logger.interface";
 import { Product } from "../model/product.entity";
 import { Order } from "../model/order.entity";
 import { Delivery } from "../model/delivery.entity";
@@ -21,6 +22,7 @@ describe("CreateOrderUseCase", () => {
   let deliveryRepository: MockProxy<IDeliveryRepository>;
   let transactionManager: MockProxy<ITransactionManager>;
   let paymentGateway: MockProxy<IPaymentGateway>;
+  let logger: MockProxy<ILogger>;
 
   const buildProduct = (overrides: Partial<Product> = {}): Product =>
     Object.assign(new Product(), {
@@ -101,6 +103,7 @@ describe("CreateOrderUseCase", () => {
     deliveryRepository = mock<IDeliveryRepository>();
     transactionManager = mock<ITransactionManager>();
     paymentGateway = mock<IPaymentGateway>();
+    logger = mock<ILogger>();
 
     // The transaction manager should execute the work function directly
     transactionManager.runInTransaction.mockImplementation(async (work) =>
@@ -113,6 +116,7 @@ describe("CreateOrderUseCase", () => {
       deliveryRepository,
       transactionManager,
       paymentGateway,
+      logger,
     );
   });
 

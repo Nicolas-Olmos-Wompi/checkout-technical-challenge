@@ -31,7 +31,7 @@ export default function PaymentSummaryScreen({ navigation }: Props) {
         request: {
           paymentMethodType: "CARD",
           card: {
-            cardNumber: card.cardNumber,
+            cardNumber: card.cardNumber.replace(/\s/g, ""),
             expMonth: card.expMonth,
             expYear: card.expYear,
             cvc: card.cvc,
