@@ -1,20 +1,54 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
+import { NavigationContainer } from "@react-navigation/native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Provider } from "react-redux";
+import { store } from "./src/store/store";
+import { useAppDispatch, useAppSelector } from "./src/store/hooks";
+import { restoreSession } from "./src/features/auth/authSlice";
+import RootNavigator from "./src/navigation/RootNavigator";
 
-export default function App() {
+// Keep the native splash screen visible until auth state has been read.
+SplashScreen.preventAutoHideAsync().catch(() => {
+  // Ignore — happens if the splash screen was already hidden (e.g. fast refresh).
+});
+
+function AppContent() {
+  const dispatch = useAppDispatch();
+  const status = useAppSelector((state) => state.auth.status);
+  const [hasHiddenSplash, setHasHiddenSplash] = useState(false);
+
+  useEffect(() => {
+    dispatch(restoreSession());
+  }, [dispatch]);
+
+  const hideSplash = useCallback(async () => {
+    if (hasHiddenSplash) return;
+    setHasHiddenSplash(true);
+    await SplashScreen.hideAsync();
+  }, [hasHiddenSplash]);
+
+  useEffect(() => {
+    if (status !== "idle" && status !== "loading") {
+      hideSplash();
+    }
+  }, [status, hideSplash]);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <RootNavigator />
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <AppContent />
+      </Provider>
+      <StatusBar style="dark" />
+    </SafeAreaProvider>
+  );
+}
