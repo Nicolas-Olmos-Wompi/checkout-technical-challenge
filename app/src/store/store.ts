@@ -4,6 +4,8 @@ import loginFormReducer from "../features/auth/loginFormSlice";
 import signupFormReducer from "../features/auth/signupFormSlice";
 import productsReducer from "../features/products/productsSlice";
 import ordersReducer from "../features/orders/ordersSlice";
+import cardReducer from "../features/card/cardSlice";
+import paymentReducer from "../features/payment/paymentSlice";
 
 export function createStore() {
   return configureStore({
@@ -13,6 +15,8 @@ export function createStore() {
       signupForm: signupFormReducer,
       products: productsReducer,
       orders: ordersReducer,
+      card: cardReducer,
+      payment: paymentReducer,
     },
   });
 }
