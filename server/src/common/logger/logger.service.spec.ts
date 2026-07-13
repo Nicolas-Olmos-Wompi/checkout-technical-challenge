@@ -63,4 +63,37 @@ describe("LoggerService", () => {
 
     expect(errorSpy).toHaveBeenCalledWith(JSON.stringify(errorObject));
   });
+
+  it("should use the constructor name when parentClass is an object", () => {
+    class MyService {}
+    const instance = new MyService();
+    const objectLogger = new LoggerService(instance);
+    objectLogger.log("test");
+
+    expect(logSpy).toHaveBeenCalledWith("test");
+  });
+
+  it("should call warn with an object message", () => {
+    const message = { key: "value", status: 500 };
+    loggerService.warn(message);
+
+    expect(warnSpy).toHaveBeenCalledWith(JSON.stringify(message));
+  });
+
+  it("should append context JSON when context is provided", () => {
+    const message = "message with context";
+    const context = { userId: "123" };
+    loggerService.log(message, context);
+
+    expect(logSpy).toHaveBeenCalledWith(
+      `message with context | ${JSON.stringify(context)}`,
+    );
+  });
+
+  it("should not append context when context is empty object", () => {
+    const message = "message without context";
+    loggerService.log(message, {});
+
+    expect(logSpy).toHaveBeenCalledWith("message without context");
+  });
 });

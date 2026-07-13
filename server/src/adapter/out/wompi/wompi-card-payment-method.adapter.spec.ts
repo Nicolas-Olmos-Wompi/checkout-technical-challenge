@@ -112,6 +112,16 @@ describe("WompiCardPaymentMethodAdapter", () => {
         PaymentMethodTokenizationError,
       );
     });
+
+    it("should wrap unexpected non-typed errors thrown synchronously", async () => {
+      httpService.post.mockImplementation(() => {
+        throw new Error("sync boom");
+      });
+
+      await expect(adapter.tokenize(cardCommand)).rejects.toBeInstanceOf(
+        PaymentMethodTokenizationError,
+      );
+    });
   });
 
   describe("buildPaymentMethodPayload", () => {

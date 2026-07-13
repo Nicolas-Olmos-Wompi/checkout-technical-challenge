@@ -86,5 +86,15 @@ describe("WompiPaymentGatewayAdapter", () => {
         CustomException,
       );
     });
+
+    it("should wrap unexpected non-typed errors thrown synchronously", async () => {
+      httpService.get.mockImplementation(() => {
+        throw new Error("sync boom");
+      });
+
+      await expect(gateway.getAcceptanceTokens()).rejects.toBeInstanceOf(
+        CustomException,
+      );
+    });
   });
 });

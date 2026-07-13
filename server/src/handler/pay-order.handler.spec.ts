@@ -176,4 +176,11 @@ describe("HandlerPayOrder", () => {
       BadRequestException,
     );
   });
+
+  it("should rethrow unknown errors that are not domain errors", async () => {
+    const unknownError = new Error("database failure");
+    jest.spyOn(payOrderUseCase, "apply").mockRejectedValue(unknownError);
+
+    await expect(handler.execute(userId, orderId, request)).rejects.toThrow(unknownError);
+  });
 });

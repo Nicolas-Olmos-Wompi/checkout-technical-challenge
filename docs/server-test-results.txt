@@ -1,0 +1,516 @@
+watchman warning: Recrawled this watch 9 times, most recently because:
+MustScanSubDirs UserDroppedTo resolve, please review the information on
+https://facebook.github.io/watchman/docs/troubleshooting.html#recrawl
+To clear this warning, run:
+`watchman watch-del '/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge' ; watchman watch-project '/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge'`
+
+[Nest] 55832  - 07/12/2026, 7:13:04 PM   ERROR [HandlerCreateOrder] database failure | {"userId":"11111111-1111-1111-1111-111111111111"}
+Error: database failure
+    at Object.<anonymous> (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/src/handler/create-order.handler.spec.ts:191:26)
+    at Promise.finally.completed (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1561:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1501:10)
+    at _callCircusTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1011:40)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at _runTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:951:3)
+    at /Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:853:7
+    at _runTestsForDescribeBlock (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:866:11)
+    at _runTestsForDescribeBlock (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:861:11)
+    at run (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:765:3)
+    at runAndTransformResultsToJestFormat (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1993:21)
+    at jestAdapter (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/runner.js:103:33)
+    at runTestInternal (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:276:16)
+    at runTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:344:7)
+    at Object.worker (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:498:12)
+[Nest] 55830  - 07/12/2026, 7:13:04 PM   ERROR Configuration error.
+[Nest] 55830  - 07/12/2026, 7:13:04 PM   ERROR Array(1) [
+  'JWT_SECRET'
+]
+[Nest] 55830  - 07/12/2026, 7:13:04 PM   ERROR Configuration error.
+[Nest] 55830  - 07/12/2026, 7:13:04 PM   ERROR Array(1) [
+  'WOMPI_PUBLIC_KEY'
+]
+ PASS  src/common/config/env.validation.spec.ts
+  EnvironmentVariables
+    validate
+      when validate has required values
+        ✓ should be success (5 ms)
+      when JWT_SECRET is missing
+        ✓ should throw a configuration error (6 ms)
+      when a Wompi variable is missing
+        ✓ should throw a configuration error
+      when JWT_EXPIRES_IN is provided
+        ✓ should be success
+      when WOMPI_MAX_POLL_WAIT_MS and WOMPI_POLL_INITIAL_INTERVAL_MS are omitted
+        ✓ should be success (1 ms)
+      when WOMPI_MAX_POLL_WAIT_MS and WOMPI_POLL_INITIAL_INTERVAL_MS are provided
+        ✓ should be success
+
+ PASS  src/handler/create-order.handler.spec.ts
+  HandlerCreateOrder
+    ✓ should be defined (6 ms)
+    ✓ should return a CREATED HTTP response with the pending order (3 ms)
+    ✓ should call CreateOrderUseCase.apply with the mapped command (4 ms)
+    ✓ should translate ProductNotFoundError into a NotFoundException (14 ms)
+    ✓ should translate InsufficientStockError into a ConflictException (1 ms)
+    ✓ should rethrow unknown errors that are not domain errors (2 ms)
+
+ PASS  src/adapter/out/postgres/data-source.spec.ts
+  dataSource
+    ✓ should be an instance of DataSource (8 ms)
+    ✓ should be configured with the postgres driver
+    ✓ should register ProductEntity
+    ✓ should register UserEntity
+    ✓ should register OrderEntity
+    ✓ should register DeliveryEntity
+    ✓ should point migrations to the src/common/migrations glob, excluding spec files (3 ms)
+
+ PASS  src/adapter/out/postgres/order.repository.spec.ts
+  OrderRepository
+    create
+      ✓ should persist the order and return the mapped domain entity (3 ms)
+    findById
+      ✓ should return the mapped order when found (1 ms)
+      ✓ should return null when no order matches
+    updateStatus
+      ✓ should update the status and payment gateway transaction id, returning the mapped order
+      ✓ should update only the status when paymentGatewayTransactionId is not provided
+
+[Nest] 55830  - 07/12/2026, 7:13:05 PM   ERROR [HandlerPayOrder] database failure | {"userId":"11111111-1111-1111-1111-111111111111","orderId":"33333333-3333-3333-3333-333333333333"}
+Error: database failure
+    at Object.<anonymous> (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/src/handler/pay-order.handler.spec.ts:181:26)
+    at Promise.finally.completed (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1561:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1501:10)
+    at _callCircusTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1011:40)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at _runTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:951:3)
+    at /Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:853:7
+    at _runTestsForDescribeBlock (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:866:11)
+    at _runTestsForDescribeBlock (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:861:11)
+    at run (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:765:3)
+    at runAndTransformResultsToJestFormat (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1993:21)
+    at jestAdapter (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/runner.js:103:33)
+    at runTestInternal (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:276:16)
+    at runTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:344:7)
+    at Object.worker (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:498:12)
+ PASS  src/handler/pay-order.handler.spec.ts
+  HandlerPayOrder
+    ✓ should be defined (4 ms)
+    ✓ should return an OK HTTP response with the pay order result (2 ms)
+    ✓ should call PayOrderUseCase.apply with the mapped command (1 ms)
+    ✓ should translate OrderNotFoundError into a NotFoundException (13 ms)
+    ✓ should translate OrderNotPayableError into a ConflictException (2 ms)
+    ✓ should translate PaymentMethodTokenizationError into an UnprocessableEntityException (3 ms)
+    ✓ should translate TransactionCreationError into an UnprocessableEntityException (3 ms)
+    ✓ should translate UnsupportedPaymentMethodError into a BadRequestException (4 ms)
+    ✓ should rethrow unknown errors that are not domain errors (7 ms)
+
+ PASS  src/adapter/out/postgres/product.repository.spec.ts
+  ProductRepository
+    ✓ should query with pagination and no filters when none are provided (3 ms)
+    ✓ should calculate skip based on page and pageSize
+    ✓ should filter by name using ILike (1 ms)
+    ✓ should filter by price range using Between when min and max are provided
+    ✓ should filter by MoreThanOrEqual when only minPrice is provided
+    ✓ should filter by LessThanOrEqual when only maxPrice is provided
+    ✓ should map returned entities to domain products and return the total (1 ms)
+    findById
+      ✓ should return the mapped product when found
+      ✓ should return null when no product matches
+
+ PASS  src/adapter/in/http/product.controller.spec.ts
+  ProductController
+    ✓ should be defined (5 ms)
+    ✓ should call handlerGetProducts.execute with the correct query (1 ms)
+
+ PASS  src/adapter/in/http/order.controller.spec.ts
+  OrderController
+    ✓ should be defined (9 ms)
+    ✓ should call handlerCreateOrder.execute with the authenticated user's id and the request (4 ms)
+    ✓ should call handlerPayOrder.execute with the authenticated user's id, order id, and request (4 ms)
+    ✓ should call handlerGetOrder.execute with the authenticated user's id and order id (11 ms)
+
+ PASS  src/adapter/out/postgres/user.repository.spec.ts
+  UserRepository
+    findByUsername
+      ✓ should return the mapped user when found (1 ms)
+      ✓ should return null when no user matches
+    findById
+      ✓ should return the mapped user when found
+      ✓ should return null when no user matches
+    create
+      ✓ should persist and return the mapped user (1 ms)
+
+ PASS  src/model/mapper/product-entity.mapper.spec.ts
+  ProductEntityMapper
+    toModel
+      ✓ should map a ProductEntity to a domain Product
+      ✓ should keep image as null when the entity has no image
+      ✓ should keep price as an integer (cents) without conversion
+    toModelList
+      ✓ should map a list of ProductEntity to a list of domain Product (1 ms)
+      ✓ should return an empty array when given an empty list
+
+ PASS  src/handler/get-products.handler.spec.ts
+  HandlerGetProducts
+    ✓ should be defined (4 ms)
+    ✓ should return a successful HTTP response (2 ms)
+    ✓ should call ProductMapper.toQuery with the correct request (1 ms)
+    ✓ should call GetProductsUseCase.apply with the mapped query (2 ms)
+    ✓ should call ProductMapper.toDTO with the use case result (1 ms)
+
+[Nest] 55829  - 07/12/2026, 7:13:05 PM     LOG [WompiCardPaymentMethod] Wompi card tokenization body: {"cardNumber":"4242424242424242","expMonth":"06","expYear":"29","cvc":"123","cardHolder":"John Doe"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM     LOG [WompiCardPaymentMethod] Wompi card tokenization body: {"cardNumber":"4242424242424242","expMonth":"06","expYear":"29","cvc":"123","cardHolder":"John Doe"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM     LOG [WompiCardPaymentMethod] Wompi card tokenization body: {"cardNumber":"4242424242424242","expMonth":"06","expYear":"29","cvc":"123","cardHolder":"John Doe"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM    WARN [WompiCardPaymentMethod] Wompi card tokenization returned non-CREATED status | {"status":"DECLINED"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM     LOG [WompiCardPaymentMethod] Wompi card tokenization body: {"cardNumber":"4242424242424242","expMonth":"06","expYear":"29","cvc":"123","cardHolder":"John Doe"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM   ERROR [WompiCardPaymentMethod] Wompi card tokenization failed | {}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM     LOG [WompiCardPaymentMethod] Wompi card tokenization body: {"cardNumber":"4242424242424242","expMonth":"06","expYear":"29","cvc":"123","cardHolder":"John Doe"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM   ERROR [WompiCardPaymentMethod] Unexpected error in card tokenization | {"message":"sync boom"}
+ PASS  src/adapter/out/wompi/wompi-card-payment-method.adapter.spec.ts
+  WompiCardPaymentMethodAdapter
+    ✓ should expose type CARD (1 ms)
+    tokenize
+      ✓ should call the tokens/cards endpoint with the public key as bearer (3 ms)
+      ✓ should return the token and masked display info on CREATED status
+      ✓ should throw PaymentMethodTokenizationError when status is not CREATED
+      ✓ should throw PaymentMethodTokenizationError on HTTP failure without leaking the raw error (1 ms)
+      ✓ should wrap unexpected non-typed errors thrown synchronously
+    buildPaymentMethodPayload
+      ✓ should return a CARD payment_method payload with installments hardcoded to 1
+
+[Nest] 55828  - 07/12/2026, 7:13:05 PM   ERROR [WompiPaymentGateway] Wompi getAcceptanceTokens failed | {}
+[Nest] 55828  - 07/12/2026, 7:13:05 PM   ERROR [WompiPaymentGateway] Unexpected error in getAcceptanceTokens | {"message":"sync boom"}
+ PASS  src/adapter/out/wompi/wompi-payment-gateway.adapter.spec.ts
+  WompiPaymentGatewayAdapter
+    getAcceptanceTokens
+      ✓ should call the merchant endpoint built from the configured base URL and public key (1 ms)
+      ✓ should map both presigned tokens into a MerchantAcceptance
+      ✓ should wrap request failures in a CustomException (1 ms)
+      ✓ should wrap unexpected non-typed errors thrown synchronously
+
+[Nest] 55832  - 07/12/2026, 7:13:05 PM   ERROR [HandlerLogin] database failure | {"username":"johndoe"}
+Error: database failure
+    at Object.<anonymous> (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/src/handler/login.handler.spec.ts:109:26)
+    at Promise.finally.completed (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1561:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1501:10)
+    at _callCircusTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1011:40)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at _runTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:951:3)
+    at /Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:853:7
+    at _runTestsForDescribeBlock (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:866:11)
+    at _runTestsForDescribeBlock (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:861:11)
+    at run (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:765:3)
+    at runAndTransformResultsToJestFormat (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1993:21)
+    at jestAdapter (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/runner.js:103:33)
+    at runTestInternal (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:276:16)
+    at runTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:344:7)
+    at Object.worker (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:498:12)
+ PASS  src/handler/login.handler.spec.ts
+  HandlerLogin
+    ✓ should be defined (5 ms)
+    ✓ should return a successful HTTP response on login (2 ms)
+    ✓ should call LoginUseCase.apply with the mapped command (1 ms)
+    ✓ should translate InvalidCredentialsError into an UnauthorizedException (4 ms)
+    ✓ should rethrow unknown errors that are not InvalidCredentialsError (1 ms)
+
+ PASS  src/adapter/in/http/auth.controller.spec.ts
+  AuthController
+    ✓ should be defined (4 ms)
+    ✓ should call handlerSignup.execute with the signup request (2 ms)
+    ✓ should call handlerLogin.execute with the login request (2 ms)
+
+[Nest] 55829  - 07/12/2026, 7:13:05 PM   ERROR [WompiTransactionGateway] Wompi createTransaction failed | {"reference":"ORDER-2024-001"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM   ERROR [WompiTransactionGateway] Unexpected error in createTransaction | {"message":"sync boom","reference":"ORDER-2024-001"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM   ERROR [WompiTransactionGateway] Wompi getTransactionStatus failed | {"transactionId":"1292-1602113476-10985"}
+[Nest] 55829  - 07/12/2026, 7:13:05 PM   ERROR [WompiTransactionGateway] Unexpected error in getTransactionStatus | {"message":"sync boom","transactionId":"1292-1602113476-10985"}
+ PASS  src/adapter/out/wompi/wompi-transaction-gateway.adapter.spec.ts
+  WompiTransactionGatewayAdapter
+    createTransaction
+      ✓ should POST to /transactions with the private key as bearer (3 ms)
+      ✓ should return the mapped transaction id and status (1 ms)
+      ✓ should throw TransactionCreationError on HTTP failure without leaking the raw error (1 ms)
+      ✓ should wrap unexpected non-typed errors thrown synchronously (4 ms)
+    getTransactionStatus
+      ✓ should GET /transactions/:id with the public key as bearer
+      ✓ should return the mapped transaction id and status
+      ✓ should throw TransactionCreationError on HTTP failure without leaking the raw error
+      ✓ should wrap unexpected non-typed errors thrown synchronously (1 ms)
+
+ PASS  src/adapter/out/postgres/typeorm-health.repository.spec.ts
+  TypeOrmHealthRepository
+    checkHealth
+      ✓ should return true if the query executes successfully (3 ms)
+      ✓ should return false if the query throws an error (1 ms)
+      ✓ should return false if connecting to query runner throws an error (1 ms)
+      ✓ should return false if releasing query runner throws an error
+
+ PASS  src/common/strategies/jwt.strategy.spec.ts
+  JwtStrategy
+    validate
+      ✓ should return the authenticated user payload from the token (2 ms)
+
+ PASS  src/adapter/out/postgres/typeorm-transaction-manager.spec.ts
+  TypeOrmTransactionManager
+    ✓ should execute the work function inside a DataSource transaction (4 ms)
+    ✓ should propagate errors thrown by the work function (8 ms)
+
+ PASS  src/handler/get-order.handler.spec.ts
+  HandlerGetOrder
+    ✓ should be defined (4 ms)
+    ✓ should return an OK HTTP response with the order when found and owned by the user (1 ms)
+    ✓ should throw NotFoundException when the order does not exist (11 ms)
+    ✓ should throw NotFoundException when the order belongs to another user (1 ms)
+
+[Nest] 55829  - 07/12/2026, 7:13:05 PM   ERROR [HandlerSignup] database failure | {"username":"johndoe"}
+Error: database failure
+    at Object.<anonymous> (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/src/handler/signup.handler.spec.ts:123:26)
+    at Promise.finally.completed (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1561:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1501:10)
+    at _callCircusTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1011:40)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at _runTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:951:3)
+    at /Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:853:7
+    at _runTestsForDescribeBlock (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:866:11)
+    at _runTestsForDescribeBlock (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:861:11)
+    at run (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:765:3)
+    at runAndTransformResultsToJestFormat (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/jestAdapterInit.js:1993:21)
+    at jestAdapter (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-circus/build/runner.js:103:33)
+    at runTestInternal (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:276:16)
+    at runTest (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:344:7)
+    at Object.worker (/Users/a69705/Documents/open-banking/prueba-ssr/checkout-technical-challenge/server/node_modules/jest-runner/build/testWorker.js:498:12)
+ PASS  src/handler/signup.handler.spec.ts
+  HandlerSignup
+    ✓ should be defined (3 ms)
+    ✓ should return a successful HTTP response on signup (1 ms)
+    ✓ should call SignupUseCase.apply with the mapped command
+    ✓ should translate UsernameAlreadyExistsError into a ConflictException (6 ms)
+    ✓ should rethrow unknown errors that are not UsernameAlreadyExistsError (2 ms)
+
+ PASS  src/adapter/out/wompi/sha256-integrity-signature.adapter.spec.ts
+  Sha256IntegritySignatureAdapter
+    ✓ should generate the SHA-256 hex digest of reference+amount+currency+secret
+    ✓ should produce different signatures for different references (1 ms)
+
+ PASS  src/adapter/out/auth/jwt-token-generator.adapter.spec.ts
+  JwtTokenGeneratorAdapter
+    ✓ should sign the payload and return the token with the configured expiresIn
+    ✓ should default expiresIn to 1h when not configured (1 ms)
+
+ PASS  src/model/dto/http-response.model.spec.ts
+  HTTPResponse
+    ✓ should initialize a 404 error (3 ms)
+
+[Nest] 55829  - 07/12/2026, 7:13:05 PM     LOG [HandlerGetServerHealthStatus] GET /health
+[Nest] 55829  - 07/12/2026, 7:13:05 PM     LOG [HandlerGetServerHealthStatus] Health check handler: healthy
+[Nest] 55829  - 07/12/2026, 7:13:05 PM     LOG [HandlerGetServerHealthStatus] GET /health
+[Nest] 55829  - 07/12/2026, 7:13:05 PM   ERROR [HandlerGetServerHealthStatus] Health check handler: unhealthy
+ PASS  src/adapter/in/http/health.controller.spec.ts
+  HealthController
+    ✓ Get healthy status (1 ms)
+    ✓ Get an unhealthy status
+
+ PASS  src/common/logger/logger.service.spec.ts
+  LoggerService
+    ✓ should call debug with the correct message (2 ms)
+    ✓ should call warn with the correct message
+    ✓ should call error with string message
+    ✓ should call error with Error object (4 ms)
+    ✓ should call log with the correct message (1 ms)
+    ✓ should call error with an object
+    ✓ should use the constructor name when parentClass is an object (1 ms)
+    ✓ should call warn with an object message
+    ✓ should append context JSON when context is provided
+    ✓ should not append context when context is empty object (1 ms)
+
+ PASS  src/model/mapper/product.mapper.spec.ts
+  ProductMapper
+    toQuery
+      ✓ should map a request with all fields to domain criteria (1 ms)
+      ✓ should default page to 1 and pageSize to 10 when not provided (1 ms)
+    toDTO
+      ✓ should map a domain ProductsResult to a PaginatedProductsResponse
+      ✓ should keep price as an integer (cents) with no conversion
+      ✓ should map an empty result to an empty items array (1 ms)
+
+[Nest] 55827  - 07/12/2026, 7:13:06 PM     LOG [HandlerGetServerHealthStatus] GET /health
+[Nest] 55827  - 07/12/2026, 7:13:06 PM     LOG [HandlerGetServerHealthStatus] Health check handler: healthy
+ PASS  src/model/mapper/user-entity.mapper.spec.ts
+  UserEntityMapper
+    toModel
+      ✓ should map a UserEntity to a domain User
+
+[Nest] 55827  - 07/12/2026, 7:13:06 PM     LOG [HandlerGetServerHealthStatus] GET /health
+[Nest] 55827  - 07/12/2026, 7:13:06 PM   ERROR [HandlerGetServerHealthStatus] Health check handler: unhealthy
+ PASS  src/handler/get-server-health-status-handler.spec.ts
+  HandlerGetServerHealthStatus
+    ✓ Should return HTTPResponse with healthy database connection (9 ms)
+    ✓ Should return HTTPResponse with an unhealthy database connection (21 ms)
+
+ PASS  src/adapter/out/postgres/delivery.repository.spec.ts
+  DeliveryRepository
+    create
+      ✓ should persist the delivery and return the mapped domain entity
+
+ PASS  src/model/mapper/delivery-entity.mapper.spec.ts
+  DeliveryEntityMapper
+    toModel
+      ✓ should map a DeliveryEntity to a domain Delivery (1 ms)
+
+ PASS  domain/src/usecase/create-order.usecase.spec.ts
+  CreateOrderUseCase
+    ✓ should throw ProductNotFoundError when the product does not exist (5 ms)
+    ✓ should throw InsufficientStockError when quantity exceeds stock (6 ms)
+    ✓ should compute the total from product price times quantity plus delivery fee (1 ms)
+    ✓ should always generate a delivery fee that is a whole multiple of 100 cents (no sub-peso amounts) (5 ms)
+    ✓ should fetch acceptance tokens and persist a PENDING order with both tokens
+    ✓ should persist both order and delivery within a transaction
+    ✓ should link the delivery to the created order's id (1 ms)
+    ✓ should NOT decrement product stock
+    ✓ should return the created order, delivery, and merchant acceptance (1 ms)
+
+ PASS  domain/src/usecase/pay-order.usecase.spec.ts
+  PayOrderUseCase
+    ✓ should complete the happy path and return the APPROVED order (1 ms)
+    ✓ should return a DECLINED order when the gateway reports DECLINED
+    ✓ should return the order still PENDING with timedOut true when polling times out
+    ✓ should throw OrderNotFoundError when the order does not exist (5 ms)
+    ✓ should throw OrderNotFoundError when the order belongs to another user
+    ✓ should throw OrderNotPayableError when the order is not PENDING (1 ms)
+    ✓ should propagate tokenization failures
+    ✓ should throw UnsupportedPaymentMethodError when no handler matches the requested type
+    ✓ should require zero changes to support a second payment method handler (1 ms)
+    ✓ should build the transaction command using the order's stored acceptance token and the user's email
+    ✓ should persist the paymentGatewayTransactionId before polling (1 ms)
+
+ PASS  domain/src/usecase/login.usecase.spec.ts
+  LoginUseCase
+    ✓ should throw InvalidCredentialsError when the username does not exist (2 ms)
+    ✓ should throw InvalidCredentialsError when the password does not match (1 ms)
+    ✓ should return the user with a signed token on valid credentials
+
+ PASS  src/model/mapper/auth.mapper.spec.ts
+  AuthMapper
+    toSignupCommand
+      ✓ should map a SignupRequest to a SignupCommand
+    toLoginCommand
+      ✓ should map a LoginRequest to a LoginCommand
+    toDTO
+      ✓ should map an AuthResult to an AuthResponse without exposing the password hash
+
+ PASS  src/common/config/general.config.spec.ts
+  GeneralConfig
+    ✓ should return the port in process.env.PORT (1 ms)
+    ✓ should return the default port
+
+ PASS  domain/src/usecase/signup.usecase.spec.ts
+  SignupUseCase
+    ✓ should throw UsernameAlreadyExistsError when the username is taken (3 ms)
+    ✓ should hash the password before persisting the user
+    ✓ should return the created user with a signed token
+
+ PASS  domain/src/usecase/get-products.usecase.spec.ts
+  GetProductsUseCase
+    ✓ should forward filters and pagination to the repository (1 ms)
+    ✓ should default page to 1 and pageSize to 10 when not provided
+    ✓ should default page and pageSize when given non-positive values
+    ✓ should calculate totalPages from total and pageSize
+    ✓ should return an empty list with totalPages 0 when there are no matches (1 ms)
+
+ PASS  domain/src/usecase/get-health.usecase.spec.ts
+  GetHealthUseCase
+    ✓ Check the health of database connection (2 ms)
+    ✓ Check an unhealthy database connection
+
+ PASS  src/model/mapper/pay-order.mapper.spec.ts
+  PayOrderMapper
+    toCommand
+      ✓ should map a PayOrderRequest, userId and orderId to a PayOrderCommand
+      ✓ should never include raw card data outside the nested card field
+    toDTO
+      ✓ should map a PayOrderResult to a PayOrderResponse without leaking raw card data
+    toOrderResponse
+      ✓ should map a domain Order to an OrderResponse
+
+ PASS  src/common/utils/environment.util.spec.ts
+  Environment Util
+    ✓ should return true if APP_ENV is PRODUCTION (1 ms)
+    ✓ should return false if APP_ENV is not PRODUCTION
+    ✓ should return true if APP_ENV is LOCAL
+    ✓ should return false if APP_ENV is not LOCAL
+    ✓ should return true if APP_ENV is DEVELOPMENT
+    ✓ should return false if APP_ENV is not DEVELOPMENT
+    ✓ should return true if APP_ENV is UAT
+    ✓ should return false if APP_ENV is not UAT
+
+ PASS  src/model/exceptions/custom.model.spec.ts
+  CustomException
+    ✓ should initialize a custom error with all params (1 ms)
+    ✓ should initialize a custom error with necessary params (1 ms)
+
+ PASS  src/model/mapper/order-entity.mapper.spec.ts
+  OrderEntityMapper
+    toModel
+      ✓ should map an OrderEntity to a domain Order (1 ms)
+
+ PASS  src/model/mapper/get-server-health-status.mapper.spec.ts
+  GetServerHealthStatusMapper
+    toDTO
+      ✓ should return "I'm alive!" when health status is true
+      ✓ should return "Database issue. Unhealthy" when health status is false
+
+ PASS  src/adapter/out/postgres/typeorm.config.spec.ts
+  typeOrmConfig
+    ✓ should return typeOrmConfig when is local and auth mechanism is password (2 ms)
+    ✓ should return typeOrmConfig when is local and auth mechanism is IAM auth (1 ms)
+    ✓ should return typeOrmConfig when is not local and auth mechanism is IAM auth (1 ms)
+  getPassword
+    ✓ should return config with DB_PASSWORD when environment is local
+    ✓ should return config with DB_PASSWORD when auth mechanism is PASSWORD
+    ✓ should call AmazonRDSUtils.getAuthToken when auth mechanism is IAM_AUTH
+    ✓ should throw an error if AmazonRDSUtils.getAuthToken fails (17 ms)
+
+ PASS  domain/src/usecase/transaction-status-poller.spec.ts
+  TransactionStatusPoller
+    ✓ should return immediately when the first status is already final
+    ✓ should keep polling with an increasing interval until a final status is reached (1 ms)
+    ✓ should treat VOIDED and ERROR as final statuses
+    ✓ should stop and report timedOut when the max wait is exhausted while still PENDING
+    ✓ should never let the sleep interval exceed the remaining time budget
+
+ PASS  src/model/mapper/order.mapper.spec.ts
+  OrderMapper
+    toCreateCommand
+      ✓ should map a CreateOrderRequest and userId to a CreateOrderCommand (1 ms)
+      ✓ should include the delivery fee when provided
+    toDTO
+      ✓ should map a CreateOrderResult to a PendingOrderResponse
+
+ PASS  src/common/utils/general.util.spec.ts
+  GeneralUtils
+    getTraceId
+      ✓ should return the trace id from ClsService
+
+ PASS  src/adapter/out/security/bcrypt-password-hasher.adapter.spec.ts
+  BcryptPasswordHasherAdapter
+    hash
+      ✓ should produce a bcrypt hash different from the plain password (352 ms)
+    compare
+      ✓ should return true when the plain password matches the hash (820 ms)
+      ✓ should return false when the plain password does not match the hash (793 ms)
+
+
+=============================== Coverage summary ===============================
+Statements   : 98.83% ( 850/860 )
+Branches     : 83.02% ( 269/324 )
+Functions    : 94.55% ( 139/147 )
+Lines        : 98.74% ( 787/797 )
+================================================================================
+Test Suites: 49 passed, 49 total
+Tests:       207 passed, 207 total
+Snapshots:   0 total
+Time:        3.046 s
+Ran all test suites.

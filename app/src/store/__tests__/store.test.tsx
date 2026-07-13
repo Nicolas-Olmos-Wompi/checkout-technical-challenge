@@ -42,6 +42,8 @@ describe("store", () => {
       status: "idle",
       error: null,
       submittedDelivery: null,
+      acceptedEndUserPolicy: false,
+      acceptedPersonalDataAuth: false,
     });
   });
 
