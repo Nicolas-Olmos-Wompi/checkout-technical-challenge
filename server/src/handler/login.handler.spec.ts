@@ -103,4 +103,12 @@ describe("HandlerLogin", () => {
       UnauthorizedException,
     );
   });
+
+  it("should rethrow unknown errors that are not InvalidCredentialsError", async () => {
+    const request: LoginRequest = { username: "johndoe", password: "password123" };
+    const unknownError = new Error("database failure");
+    jest.spyOn(loginUseCase, "apply").mockRejectedValue(unknownError);
+
+    await expect(handler.execute(request)).rejects.toThrow(unknownError);
+  });
 });

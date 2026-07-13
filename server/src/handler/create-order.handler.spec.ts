@@ -186,4 +186,11 @@ describe("HandlerCreateOrder", () => {
       ConflictException,
     );
   });
+
+  it("should rethrow unknown errors that are not domain errors", async () => {
+    const unknownError = new Error("database failure");
+    jest.spyOn(createOrderUseCase, "apply").mockRejectedValue(unknownError);
+
+    await expect(handler.execute(userId, request)).rejects.toThrow(unknownError);
+  });
 });

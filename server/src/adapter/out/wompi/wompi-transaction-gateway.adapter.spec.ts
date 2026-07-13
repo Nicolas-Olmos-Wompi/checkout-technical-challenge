@@ -100,6 +100,16 @@ describe("WompiTransactionGatewayAdapter", () => {
         TransactionCreationError,
       );
     });
+
+    it("should wrap unexpected non-typed errors thrown synchronously", async () => {
+      httpService.post.mockImplementation(() => {
+        throw new Error("sync boom");
+      });
+
+      await expect(adapter.createTransaction(command)).rejects.toBeInstanceOf(
+        TransactionCreationError,
+      );
+    });
   });
 
   describe("getTransactionStatus", () => {
@@ -131,6 +141,16 @@ describe("WompiTransactionGatewayAdapter", () => {
       httpService.get.mockReturnValue(
         throwError(() => new Error("network error")),
       );
+
+      await expect(
+        adapter.getTransactionStatus("1292-1602113476-10985"),
+      ).rejects.toBeInstanceOf(TransactionCreationError);
+    });
+
+    it("should wrap unexpected non-typed errors thrown synchronously", async () => {
+      httpService.get.mockImplementation(() => {
+        throw new Error("sync boom");
+      });
 
       await expect(
         adapter.getTransactionStatus("1292-1602113476-10985"),

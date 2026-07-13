@@ -113,4 +113,16 @@ describe("HandlerSignup", () => {
 
     await expect(handler.execute(request)).rejects.toThrow(ConflictException);
   });
+
+  it("should rethrow unknown errors that are not UsernameAlreadyExistsError", async () => {
+    const request: SignupRequest = {
+      username: "johndoe",
+      email: "johndoe@example.com",
+      password: "password123",
+    };
+    const unknownError = new Error("database failure");
+    jest.spyOn(signupUseCase, "apply").mockRejectedValue(unknownError);
+
+    await expect(handler.execute(request)).rejects.toThrow(unknownError);
+  });
 });
