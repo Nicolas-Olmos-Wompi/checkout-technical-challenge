@@ -32,12 +32,12 @@ function areDeliveryFieldsEqual(
   b: DeliveryFormFields,
 ): boolean {
   return (
-    a.personName === b.personName &&
-    a.address === b.address &&
-    a.city === b.city &&
-    a.region === b.region &&
-    a.postalCode === b.postalCode &&
-    a.phoneNumber === b.phoneNumber
+    a.personName.trim() === b.personName.trim() &&
+    a.address.trim() === b.address.trim() &&
+    a.city.trim() === b.city.trim() &&
+    a.region.trim() === b.region.trim() &&
+    a.postalCode.trim() === b.postalCode.trim() &&
+    a.phoneNumber.trim() === b.phoneNumber.trim()
   );
 }
 
